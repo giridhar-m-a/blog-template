@@ -369,7 +369,7 @@ export const demoData: JSONContent = {
     {
       type: "image",
       attrs: {
-        src: "https://www.giridhar.dev/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fdhklpkwbz%2Fimage%2Fupload%2Fv1722136637%2FDocker_Ps_container_Id_823793ab2e.png&w=3840&q=75",
+        src: "https://placehold.co/600x400/EEE/31343C",
         alt: "Docker Ps container Id.png",
         title: null,
       },
@@ -472,7 +472,7 @@ export const demoData: JSONContent = {
     {
       type: "image",
       attrs: {
-        src: "https://www.giridhar.dev/_next/image?url=https%3A%2F%2Fres.cloudinary.com%2Fdhklpkwbz%2Fimage%2Fupload%2Fv1722136785%2FDocker_MQTT_terminal_b64804e49f.png&w=3840&q=75",
+        src: "https://placehold.co/600x400/EEE/31343C",
         alt: "Docker MQTT terminal.png",
         title: null,
       },

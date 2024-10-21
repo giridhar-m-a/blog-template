@@ -11,13 +11,15 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import Youtube from "@tiptap/extension-youtube";
-import { EditorContent, JSONContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TipTapToolBar from "./TipTapToolBar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type props = {
-  content?: JSONContent;
-  setContent: (content: JSONContent) => void;
+  content?: string;
+  setContent: (content: string) => void;
+  editorContentClass?: string; // in rem
 };
 
 const headingConfig: Partial<HeadingOptions> = {
@@ -27,8 +29,12 @@ const headingConfig: Partial<HeadingOptions> = {
   },
 };
 
-const TipTapEditor: React.FC<props> = ({ content, setContent }) => {
-  const onChange = (content: JSONContent) => {
+const TipTapEditor: React.FC<props> = ({
+  content,
+  setContent,
+  editorContentClass,
+}) => {
+  const onChange = (content: string) => {
     setContent(content);
   };
   const editor = useEditor({
@@ -38,7 +44,13 @@ const TipTapEditor: React.FC<props> = ({ content, setContent }) => {
           class: "text-xl font-bold",
         },
       }),
-      StarterKit.configure({}),
+      StarterKit.configure({
+        paragraph: {
+          HTMLAttributes: {
+            class: "min-h-10",
+          },
+        },
+      }),
       TextAlign.configure({
         types: ["heading", "paragraph"],
       }),
@@ -68,6 +80,7 @@ const TipTapEditor: React.FC<props> = ({ content, setContent }) => {
         HTMLAttributes: {
           class: "rounded bg-neutral-800 p-6 border-2 text-left",
         },
+        defaultLanguage: "javascript",
       }),
       Youtube.configure({
         width: 640,
@@ -88,7 +101,7 @@ const TipTapEditor: React.FC<props> = ({ content, setContent }) => {
     },
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      onChange(editor.getJSON());
+      onChange(editor.getHTML());
     },
   });
 
@@ -99,7 +112,9 @@ const TipTapEditor: React.FC<props> = ({ content, setContent }) => {
           <TipTapToolBar editor={editor} />
         </CardHeader>
         <CardContent>
-          <EditorContent style={{ whiteSpace: "pre-line" }} editor={editor} />
+          <ScrollArea className={editorContentClass}>
+            <EditorContent style={{ whiteSpace: "pre-line" }} editor={editor} />
+          </ScrollArea>
         </CardContent>
       </Card>
     </>

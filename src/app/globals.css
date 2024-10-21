@@ -75,4 +75,24 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
+  .rich-text h1 {
+    @apply lg:text-6xl text-4xl font-bold;
+  }
+  .rich-text h2 {
+    @apply lg:text-4xl text-2xl font-semibold;
+  }
+  .rich-text h3 {
+    @apply lg:text-2xl text-lg font-semibold;
+  }
+  .rich-text h4 {
+    @apply lg:text-lg font-semibold;
+  }
+  .rich-text a {
+    @apply hover:text-primary/80;
+  }
+
+  .rich-text p {
+    @apply lg:text-base text-sm;
+  }
 }
