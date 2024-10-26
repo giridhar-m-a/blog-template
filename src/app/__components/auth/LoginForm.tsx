@@ -21,6 +21,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { login } from "@/app/__actions/auth/signin";
+import { signOut } from "next-auth/react";
 
 export function LoginForm() {
   const form = useForm<LoginFormType>({
@@ -38,8 +40,13 @@ export function LoginForm() {
   } = form;
 
   const submitForm = async (data: LoginFormType) => {
-    console.log(data);
-    reset();
+    const res = await login({ data });
+    console.log(res);
+    if (!res?.ok) {
+      console.log(res?.message);
+    } else {
+      reset();
+    }
   };
 
   return (
@@ -65,6 +72,7 @@ export function LoginForm() {
                       id="email"
                       placeholder="Enter your email"
                       {...field}
+                      disabled={isSubmitting}
                     />
                   </FormControl>
                   {/* <FormDescription /> */}
@@ -87,7 +95,12 @@ export function LoginForm() {
                     </Link>
                   </div>
                   <FormControl>
-                    <Input type="password" id="password" {...field} />
+                    <Input
+                      type="password"
+                      id="password"
+                      {...field}
+                      disabled={isSubmitting}
+                    />
                   </FormControl>
                   {/* <FormDescription /> */}
                   <FormMessage />
@@ -103,7 +116,15 @@ export function LoginForm() {
             </Button>
           </form>
         </Form>
-        <Button variant={"outline"} className="w-full text-center">
+        <Button
+          variant={"outline"}
+          className="w-full text-center"
+          onClick={() =>
+            signOut({
+              redirectTo: "/",
+            })
+          }
+        >
           Login with Google
         </Button>
         <div className="mt-4 text-center text-sm">

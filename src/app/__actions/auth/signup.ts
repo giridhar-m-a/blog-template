@@ -1,5 +1,10 @@
+"use server";
+
 import { RegisterSchemaType } from "@/app/__schema/auth/RegisterSchema";
+import { BcryptProvider } from "@/lib/Bcrypt.provider";
 import { db } from "@/lib/db";
+
+const hashingProvider = new BcryptProvider();
 
 export const Register = async (data: RegisterSchemaType) => {
   try {
@@ -13,9 +18,14 @@ export const Register = async (data: RegisterSchemaType) => {
       throw new Error("User already exists");
     }
 
+    const password = await hashingProvider.hash(data.password);
+
+    console.log("password:", password);
+
     const user = await db.user.create({
       data: {
         ...data,
+        password: password,
       },
       select: {
         id: true,
@@ -36,10 +46,9 @@ export const Register = async (data: RegisterSchemaType) => {
       message: "User created successfully",
     };
   } catch (err) {
-    console.error(err);
-    return{
+    return {
       ok: false,
-      message: "User not created",
-    }
+      message: err,
+    };
   }
 };

@@ -26,13 +26,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Register } from "@/app/__actions/auth/signup";
 
-export default function RegisterForm() {
+type data = {
+  email: string;
+  name: string;
+};
+
+export default function RegisterForm({ data }: { data?: data }) {
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      email: "",
+      email: data?.email || "",
       password: "",
-      name: "",
+      name: data?.name || "",
     },
   });
 
@@ -51,7 +56,7 @@ export default function RegisterForm() {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl">Signup</CardTitle>
         <CardDescription>
           Enter your email below to create your account
         </CardDescription>
@@ -114,7 +119,7 @@ export default function RegisterForm() {
           </form>
         </Form>
         <Button variant={"outline"} className="w-full text-center">
-          Login with Google
+          Signup with Google
         </Button>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
