@@ -1,4 +1,7 @@
+import { SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
+import AppSideBar from "./__components/Layout/AppSideBar";
+import Header from "./__components/Layout/Header";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -10,5 +13,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return (
+    <SidebarProvider>
+      <AppSideBar />
+      <div className="w-full">
+        <Header />
+        <div className="px-12">{children}</div>
+      </div>
+    </SidebarProvider>
+  );
 }
