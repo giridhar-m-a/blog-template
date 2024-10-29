@@ -1,5 +1,6 @@
+import { SidebarProvider } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
-import SideBar from "./__components/Layout/SideBar";
+import AppSideBar from "./__components/Layout/AppSideBar";
 import Header from "./__components/Layout/Header";
 
 export const metadata: Metadata = {
@@ -13,13 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="relative">
-      <SideBar />
-
-      <div className="ml-24 relative py-6">
+    <SidebarProvider>
+      <AppSideBar />
+      <div className="w-full">
         <Header />
         <div className="px-12">{children}</div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
