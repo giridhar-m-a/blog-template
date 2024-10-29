@@ -56,3 +56,13 @@ model profile{
   userId String @unique
   user User @relation(fields: [userId],references: [id], onDelete: Cascade)
 }
+
+model image{
+  id Int @id @default(autoincrement())
+  fileName String @unique
+  url String @unique
+  originalName String
+  altText String
+  height Int
+  width Int
+}

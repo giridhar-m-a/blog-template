@@ -47,7 +47,7 @@ const TipTapEditor: React.FC<props> = ({
       StarterKit.configure({
         paragraph: {
           HTMLAttributes: {
-            class: "min-h-10",
+            class: "min-h-[14px]",
           },
         },
       }),
