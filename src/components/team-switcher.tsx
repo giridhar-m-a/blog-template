@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import * as React from "react";
+import { ChevronsUpDown, Plus } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -11,30 +11,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { Button } from "./ui/button";
 
 export function TeamSwitcher({
-  teams,
+  details,
 }: {
-  teams: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
+  details: {
+    name: string;
+    logo: React.ElementType;
+    description: string;
+  };
 }) {
-  const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -82,8 +80,17 @@ export function TeamSwitcher({
               <div className="font-medium text-muted-foreground">Add team</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
+        <div className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex gap-6">
+          <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <details.logo className="size-4" />
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-semibold">{details.name}</span>
+            <span className="truncate text-xs">{details.description}</span>
+          </div>
+        </div>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }
