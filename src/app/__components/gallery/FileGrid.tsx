@@ -7,18 +7,18 @@ const FileGrid = async () => {
 
   return (
     <>
-      <div className="grid grid-cols-5 gap-4">
+      <div className="flex items-center flex-wrap  gap-4">
         {imsges.map((image) => (
           <div
             key={image.id}
-            className="relative aspect-video overflow-hidden rounded-md p-4"
+            className="relative w-full basis-1/4 flex-shrink flex-auto aspect-video overflow-hidden rounded-md p-1"
           >
             <Image
               src={image.url}
               alt={image.altText}
               width={image.width}
               height={image.height}
-              className="aspect-video w-96 object-cover object-center rounded-md"
+              className="aspect-video w-full object-cover object-center rounded-md"
             />
           </div>
         ))}

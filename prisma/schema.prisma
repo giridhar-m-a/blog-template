@@ -59,9 +59,9 @@ model profile{
 
 model image{
   id Int @id @default(autoincrement())
-  fileName String @unique
+  publicId String @unique
+  fileName String 
   url String @unique
-  originalName String
   altText String
   height Int
   width Int
