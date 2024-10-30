@@ -7,6 +7,7 @@ import {
   ImageUploadSchema,
   type ImageUploadType,
 } from "../__schema/ImageUploadSchema";
+import { ImageUpdateSchema } from "../__schema/ImageUpdateSchema";
 import {
   Form,
   FormControl,
@@ -22,10 +23,19 @@ import { Button } from "@/components/ui/button";
 import { useRef, useEffect } from "react";
 import { uploadImage } from "@/app/__actions/files/upload-images";
 import { useToast } from "@/hooks/use-toast";
+import { updateImage } from "@/app/__actions/files/update-image";
+import * as z from "zod";
 
-const ImageForm: React.FC<{ imageData?: image }> = ({ imageData }) => {
-  const form = useForm<ImageUploadType>({
-    resolver: zodResolver(ImageUploadSchema),
+const ImageForm: React.FC<{
+  imageData?: image;
+  option: "update" | "create";
+}> = ({ imageData, option }) => {
+  const schema = option === "update" ? ImageUpdateSchema : ImageUploadSchema;
+  console.log(schema);
+  type formType = z.infer<typeof schema>;
+
+  const form = useForm<formType>({
+    resolver: zodResolver(schema),
     defaultValues: {
       altText: imageData?.altText || "",
       image: imageData ? [imageData.url] : [],
@@ -50,27 +60,36 @@ const ImageForm: React.FC<{ imageData?: image }> = ({ imageData }) => {
   }, []);
 
   const submitForm = async (data: ImageUploadType) => {
-    const formData = new FormData();
-    if (data.image && data.image.length === 1) {
-      const file = data.image[0];
-      formData.append("image", file);
-    }
-    formData.append("altText", data.altText);
-
-    const res = await uploadImage(formData);
-    if (!res.ok) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: res.message,
-      });
+    let res;
+    if (option === "create") {
+      const formData = new FormData();
+      if (data.image && data.image.length === 1) {
+        const file = data.image[0];
+        formData.append("image", file);
+      }
+      formData.append("altText", data.altText);
+      res = await uploadImage(formData);
     } else {
-      toast({
-        title: "Image uploaded successfully",
-        duration: 3000,
-      });
-      reset();
-      imagePreviewUrl.current = null;
+      if (imageData) {
+        res = await updateImage(imageData.id, data.altText);
+      }
+    }
+
+    if (res) {
+      if (!res.ok) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: res.message,
+        });
+      } else {
+        toast({
+          title: "Image uploaded successfully",
+          duration: 3000,
+        });
+        reset();
+        imagePreviewUrl.current = null;
+      }
     }
   };
 
