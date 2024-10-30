@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import AppSideBar from "./__components/Layout/AppSideBar";
 import Header from "./__components/Layout/Header";
 import { Toaster } from "@/components/ui/toaster";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -15,15 +16,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <SidebarProvider>
-      <AppSideBar />
-      <SidebarInset>
-        <Header />
-        <Toaster />
-        <div className="p-6 bg-primary-foreground rounded-md min-h-full mx-12">
-          {children}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+    <SessionProvider>
+      <SidebarProvider>
+        <AppSideBar />
+        <SidebarInset>
+          <Header />
+          <Toaster />
+          <div className="p-6 bg-primary-foreground rounded-md min-h-full mx-12">
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </SessionProvider>
   );
 }

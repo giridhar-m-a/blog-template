@@ -14,9 +14,8 @@ export const deleteImageById = async (id: number) => {
     if (!existingImage) {
       throw new Error("Image not found");
     }
-    console.log(existingImage.publicId);
+
     const deleteImage = await deleteImageByPublicId(existingImage.publicId);
-    console.log(deleteImage);
 
     if (deleteImage.message) {
       if (deleteImage.message === "Image not found") {

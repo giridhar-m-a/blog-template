@@ -8,6 +8,9 @@ export const getUserById = async (id: string) => {
       where: {
         id,
       },
+      include: {
+        avatar: true,
+      },
     });
     return user;
   } catch (err) {

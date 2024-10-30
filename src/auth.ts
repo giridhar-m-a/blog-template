@@ -5,9 +5,9 @@ import { db as prisma } from "./lib/db";
 import { getUserById } from "@/app/__actions/utils/users";
 import { Role } from "@prisma/client";
 
-
-type ExtendedUser = DefaultSession["user"] & {
+export type ExtendedUser = DefaultSession["user"] & {
   role: Role;
+  avatar: string | null;
 };
 
 declare module "next-auth" {
@@ -50,6 +50,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as Role;
       }
 
+      if (token.avatar && session.user) {
+        session.user.avatar = token.avatar as string;
+      }
+
       return session;
     },
     async jwt({ token }) {
@@ -62,6 +66,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.avatar = existingUser.avatar?.url || null;
 
       return token;
     },

@@ -1,14 +1,6 @@
 "use client";
-
-import {
-  Folder,
-  Frame,
-  GalleryVerticalEnd,
-  Image,
-  Map,
-  PieChart,
-  Video,
-} from "lucide-react";
+import { Folder, GalleryVerticalEnd, Image, Video } from "lucide-react";
+import { useSession } from "next-auth/react";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
@@ -21,7 +13,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-
 // This is sample data.
 const data = {
   user: {
@@ -55,26 +46,12 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -83,9 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
+      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

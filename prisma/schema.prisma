@@ -66,3 +66,9 @@ model image{
   height Int
   width Int
 }
+
+model YoutubeVideo{
+  id Int @id @default(autoincrement())
+  url String @unique
+  title String
+}
