@@ -2,7 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@radix-ui/react-separator";
 import { Video } from "lucide-react";
 import PopOver from "../../__components/PopOver";
-import VideoForm from "./components/VideoForm";
+import VideoForm from "./__components/VideoForm";
+import { getYouTuBeVideos } from "@/app/__actions/YouTube/get-youtube-video";
+import YouTubeVideoCard from "./__components/YouTubeVideoCard";
 
 const AddVideoButton = (
   <Button>
@@ -10,7 +12,8 @@ const AddVideoButton = (
     Add Youtube Video
   </Button>
 );
-export default function Videos() {
+export default async function Videos() {
+  const videos = await getYouTuBeVideos();
   return (
     <>
       <main>
@@ -23,6 +26,11 @@ export default function Videos() {
           </PopOver>
         </div>
         <Separator className="my-4" />
+        <div className="flex items-center flex-wrap  gap-4">
+          {videos?.map((video) => (
+            <YouTubeVideoCard key={video.id} video={video} />
+          ))}
+        </div>
       </main>
     </>
   );

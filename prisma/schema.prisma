@@ -19,6 +19,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   role Role @default(user)
+  posts BlogPost[]
 }
 
 model Account {
@@ -65,10 +66,33 @@ model image{
   altText String
   height Int
   width Int
+  blogPosts BlogPost[]
 }
 
 model YoutubeVideo{
   id Int @id @default(autoincrement())
   url String @unique
   title String
+}
+
+model PostCategory{
+    id Int @id @default(autoincrement())
+    slug String @unique 
+    name String @unique
+    description String?
+    posts BlogPost[]
+}
+
+model BlogPost{
+  id Int @id @default(autoincrement())
+  slug String @unique
+  title String
+  description String
+  imageId Int? @unique
+  featuredImage image? @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  content String
+  category PostCategory[]
+  keywords String?
+  authorId String
+  author User @relation(references: [id], fields: [authorId], onDelete: Cascade)
 }

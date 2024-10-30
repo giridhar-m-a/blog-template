@@ -66,7 +66,9 @@ const VideoForm: React.FC<{
           title: "Video Record Created Successfully",
           duration: 3000,
         });
-        reset();
+        if (option === "create") {
+          reset();
+        }
       }
     }
   };

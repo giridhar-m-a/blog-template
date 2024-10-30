@@ -1,5 +1,7 @@
+"use server";
 import { YouTubeVideoType } from "@/app/(authorised)/dashboard/videos/__schema/YouTubeVideoSchema";
 import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export const updateYouTubeEntry = async (
   id: number,
@@ -11,8 +13,8 @@ export const updateYouTubeEntry = async (
         url: data.url,
       },
     });
-    if (existingVideo) {
-      return { ok: false, message: "Video already exists" };
+    if (!existingVideo) {
+      return { ok: false, message: "Video donot exist" };
     }
 
     const youtubeVideo = await db.youtubeVideo.update({
@@ -25,6 +27,7 @@ export const updateYouTubeEntry = async (
     });
 
     if (youtubeVideo) {
+      revalidatePath("/", "layout");
       return { ok: true, message: "Video created successfully" };
     }
 

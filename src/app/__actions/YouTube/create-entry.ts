@@ -1,5 +1,7 @@
+"use server";
 import { YouTubeVideoType } from "@/app/(authorised)/dashboard/videos/__schema/YouTubeVideoSchema";
 import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export const createYouTubeEntry = async (data: YouTubeVideoType) => {
   try {
@@ -17,6 +19,7 @@ export const createYouTubeEntry = async (data: YouTubeVideoType) => {
     });
 
     if (youtubeVideo) {
+      revalidatePath("/", "layout");
       return { ok: true, message: "Video created successfully" };
     }
 

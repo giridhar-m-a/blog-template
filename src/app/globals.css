@@ -111,4 +111,8 @@ body {
   .rich-text p {
     @apply lg:text-base text-sm;
   }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
 }
