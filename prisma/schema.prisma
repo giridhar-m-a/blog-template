@@ -96,3 +96,18 @@ model BlogPost{
   authorId String
   author User @relation(references: [id], fields: [authorId], onDelete: Cascade)
 }
+
+
+model token{
+  id Int @id @default(autoincrement())
+  token String @unique
+  email String @unique
+  purpose TokenPurpose @default(verification)
+}
+
+enum TokenPurpose{
+  verification
+  forgetPassword
+  newUser
+  review
+}

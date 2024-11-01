@@ -1,5 +1,5 @@
 // import RegisterForm from "@/app/__components/auth/RegisterForm";
-import { LoginForm } from "../__components/auth/LoginForm";
+import { LoginForm } from "@/app/__components/auth/LoginForm";
 import { auth } from "@/auth";
 
 export default async function Page() {

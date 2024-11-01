@@ -1,8 +1,10 @@
 "use client";
-import Link from "next/link";
 
-import { login } from "@/app/__actions/auth/signin";
-import { LoginFormType, LoginSchema } from "@/app/__schema/auth/LoginSchema";
+import { sendForgetToken } from "@/app/__actions/auth/forgot-password";
+import {
+  ForgotPasswordSchema,
+  ForgotPasswordType,
+} from "@/app/__schema/auth/ForgetPassword";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,14 +26,13 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-export function LoginForm() {
+export function ForgotPassword() {
   const { toast } = useToast();
 
-  const form = useForm<LoginFormType>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<ForgotPasswordType>({
+    resolver: zodResolver(ForgotPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
@@ -41,8 +42,8 @@ export function LoginForm() {
     formState: { isSubmitting },
   } = form;
 
-  const submitForm = async (data: LoginFormType) => {
-    const res = await login({ data });
+  const submitForm = async (data: ForgotPasswordType) => {
+    const res = await sendForgetToken(data);
     console.log(res);
     if (!res?.ok) {
       toast({
@@ -61,9 +62,9 @@ export function LoginForm() {
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl">Forgot Password</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your email below to reset your password
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -89,59 +90,16 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel htmlFor="password">Password</FormLabel>
-                    <Link
-                      href="#"
-                      className="ml-auto inline-block text-sm underline"
-                    >
-                      Forgot your password?
-                    </Link>
-                  </div>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      id="password"
-                      {...field}
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
-                  {/* <FormDescription /> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <Button
               type="submit"
               disabled={isSubmitting}
               className="w-full text-center"
             >
-              {isSubmitting ? "logging in ..." : "Login"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </form>
         </Form>
-        {/* <Button
-          variant={"outline"}
-          className="w-full text-center"
-          onClick={() =>
-            signOut({
-              redirectTo: "/",
-            })
-          }
-        >
-          Login with Google
-        </Button> */}
-        <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="underline">
-            Sign up
-          </Link>
-        </div>
       </CardContent>
     </Card>
   );

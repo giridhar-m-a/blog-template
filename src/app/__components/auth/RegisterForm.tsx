@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Register } from "@/app/__actions/auth/signup";
+import { useToast } from "@/hooks/use-toast";
 
 type data = {
   email: string;
@@ -32,6 +33,7 @@ type data = {
 };
 
 export default function RegisterForm({ data }: { data?: data }) {
+  const { toast } = useToast();
   const form = useForm<RegisterSchemaType>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -49,8 +51,17 @@ export default function RegisterForm({ data }: { data?: data }) {
 
   const submitForm = async (data: RegisterSchemaType) => {
     const res = await Register(data);
-    console.log(res);
-    reset();
+    if (!res.ok) {
+      toast({
+        variant: "destructive",
+        title: res.message,
+      });
+      reset();
+    } else {
+      toast({
+        title: res.message,
+      });
+    }
   };
 
   return (
@@ -123,7 +134,7 @@ export default function RegisterForm({ data }: { data?: data }) {
         </Button>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
-          <Link href="#" className="underline">
+          <Link href="/login" className="underline">
             login here
           </Link>
         </div>

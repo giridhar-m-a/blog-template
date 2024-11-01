@@ -28,6 +28,10 @@ export default {
         }
 
         if (!user.isVerified) {
+          // const res = await getRenewedVerificationToken(user);
+          // if (!res.ok) {
+          //   throw new Error(res.message);
+          // }
           throw new Error("user not verified");
         }
 
