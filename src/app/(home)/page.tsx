@@ -1,4 +1,4 @@
-import FileGrid from "./__components/gallery/FileGrid";
+import FileGrid from "../__components/gallery/FileGrid";
 
 export default function Home() {
   return (
