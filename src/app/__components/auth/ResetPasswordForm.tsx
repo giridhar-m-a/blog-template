@@ -4,7 +4,7 @@ import { resetPassword } from "@/app/__actions/auth/reset-password";
 import {
   ResetPasswordSchema,
   ResetPasswordType,
-} from "@/app/__schema/auth/schema";
+} from "@/app/__schema/auth/ResetPasswordSchema";
 import { Button } from "@/components/ui/button";
 import {
   Card,

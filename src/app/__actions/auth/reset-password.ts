@@ -7,7 +7,7 @@ import { returnError } from "../utils/return-error";
 import { getUserByEmail } from "../utils/users";
 import { db } from "@/lib/db";
 import { BcryptProvider } from "@/lib/Bcrypt.provider";
-import { ResetPasswordType } from "@/app/__schema/auth/schema";
+import { ResetPasswordType } from "@/app/__schema/auth/ResetPasswordSchema";
 
 const hash = new BcryptProvider();
 
