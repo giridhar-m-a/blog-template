@@ -1,7 +1,12 @@
 import * as z from "zod";
 
 const MAX_FILE_SIZE = 2000000;
-const ACCEPTED_IMAGE_TYPES = ["image/png", "image/webp"];
+const ACCEPTED_IMAGE_TYPES = [
+  "image/png",
+  "image/webp",
+  "image/jpeg",
+  "image/jpg",
+];
 
 export const imageSchema = z
   .any()

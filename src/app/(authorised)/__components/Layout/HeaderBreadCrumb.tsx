@@ -33,7 +33,7 @@ function HeaderBreadcrumb() {
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                           <BreadcrumbPage className="capitalize">
-                            {path}
+                            {path.replace("-", " ")}
                           </BreadcrumbPage>
                         </BreadcrumbItem>
                       </>
@@ -42,7 +42,9 @@ function HeaderBreadcrumb() {
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                           <BreadcrumbLink asChild>
-                            <Link href={`/dashboard/${path}`}>{path}</Link>
+                            <Link href={`/dashboard/${path}`}>
+                              {path.replace("-", " ")}
+                            </Link>
                           </BreadcrumbLink>
                         </BreadcrumbItem>
                       </>

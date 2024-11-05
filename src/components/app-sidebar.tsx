@@ -1,5 +1,5 @@
 "use client";
-import { Folder, GalleryVerticalEnd, Image, Video } from "lucide-react";
+import { Folder, GalleryVerticalEnd, Image, Video,StickyNote } from "lucide-react";
 import { useSession } from "next-auth/react";
 import * as React from "react";
 
@@ -13,6 +13,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+
 // This is sample data.
 const data = {
   details: {
@@ -24,7 +25,6 @@ const data = {
   navMain: [
     {
       title: "Media",
-      url: "/#",
       icon: Folder,
       isActive: false,
       items: [
@@ -37,9 +37,15 @@ const data = {
           title: "Videos",
           url: "/dashboard/videos",
           icon: Video,
-        },
+        }
       ],
     },
+    {
+      title:"Posts",
+      url: "/dashboard/posts",
+      icon: StickyNote,
+      isActive:false
+    }
   ],
 };
 

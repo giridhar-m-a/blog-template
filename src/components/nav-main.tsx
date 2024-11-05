@@ -18,12 +18,13 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
+
 export function NavMain({
   items,
 }: {
   items: {
     title: string;
-    url: string;
+    url?: string;
     icon?: LucideIcon;
     isActive?: boolean;
     items?: {
@@ -46,11 +47,18 @@ export function NavMain({
           >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
+                {item.url?<a href={item.url}>
+                  <SidebarMenuButton tooltip={item.title}>
+                    {item.icon && <item.icon/>}
+                    <span>{item.title}</span>
+                    {item.items && <ChevronRight
+                        className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>}
+                  </SidebarMenuButton></a>:<SidebarMenuButton tooltip={item.title}>
+                  {item.icon && <item.icon/>}
                   <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
+                  {item.items && <ChevronRight
+                      className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>}
+                </SidebarMenuButton>}
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>

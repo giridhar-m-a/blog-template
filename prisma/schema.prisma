@@ -96,6 +96,9 @@ model BlogPost{
   keywords String?
   authorId String
   author User @relation(references: [id], fields: [authorId], onDelete: Cascade)
+  isPublished Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 
