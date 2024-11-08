@@ -25,8 +25,11 @@ import { useToast } from "@/hooks/use-toast";
 
 const VideoForm: React.FC<{
   videoData?: YoutubeVideo;
-  option: "update" | "create";
-}> = ({ videoData, option }) => {
+  option: "update" | "create" | "noUpload";
+  onSubmit?: (video: YoutubeVideo) => void;
+  setOpen?: (open: boolean) => void;
+  open?: boolean;
+}> = ({ videoData, option, onSubmit, setOpen, open }) => {
   const form = useForm<YouTubeVideoType>({
     resolver: zodResolver(YouTubeVideoSchema),
     defaultValues: {
@@ -46,6 +49,18 @@ const VideoForm: React.FC<{
 
   const submitForm = async (data: YouTubeVideoType) => {
     let res;
+
+    if (option === "noUpload") {
+      if (onSubmit) {
+        if (data) {
+          onSubmit({ ...data, id: 1 });
+        }
+      }
+      if (setOpen) {
+        setOpen(!open);
+      }
+    }
+
     if (option === "create") {
       res = await createYouTubeEntry(data);
     } else {
@@ -66,6 +81,14 @@ const VideoForm: React.FC<{
           title: "Video Record Created Successfully",
           duration: 3000,
         });
+        if (onSubmit) {
+          if (res.data) {
+            onSubmit(res.data);
+          }
+        }
+        if (setOpen) {
+          setOpen(!open);
+        }
         if (option === "create") {
           reset();
         }
@@ -73,10 +96,16 @@ const VideoForm: React.FC<{
     }
   };
 
+  const formSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleSubmit(submitForm)();
+  };
+
   return (
     <>
       <Form {...form}>
-        <form className="space-y-8" onSubmit={handleSubmit(submitForm)}>
+        <form className="space-y-8 min-w-96" onSubmit={formSubmit}>
           {getValues("url") !== "" && (
             <div className="aspect-video">
               <YouTubeVideoPlayer

@@ -12,7 +12,7 @@ const imageUploader = async (image: ImageUploadType["image"]) => {
       folder: `blog-template/images`,
       filename_override: image[0].name,
       use_filename: true,
-      unique_filename: false,
+      unique_filename: true,
     }
   );
   return result;

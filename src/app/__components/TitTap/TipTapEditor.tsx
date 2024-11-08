@@ -112,7 +112,7 @@ const TipTapEditor: React.FC<props> = ({
           <TipTapToolBar editor={editor} />
         </CardHeader>
         <CardContent>
-          <ScrollArea className={editorContentClass}>
+          <ScrollArea className={editorContentClass || "min-h-96"}>
             <EditorContent style={{ whiteSpace: "pre-line" }} editor={editor} />
           </ScrollArea>
         </CardContent>

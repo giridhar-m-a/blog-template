@@ -29,7 +29,10 @@ import * as z from "zod";
 const ImageForm: React.FC<{
   imageData?: image;
   option: "update" | "create";
-}> = ({ imageData, option }) => {
+  setClose?: (value: boolean) => void;
+  setImage?: (data: image) => void;
+  open?: boolean;
+}> = ({ imageData, option, setClose, setImage }) => {
   const schema = option === "update" ? ImageUpdateSchema : ImageUploadSchema;
   console.log(schema);
   type formType = z.infer<typeof schema>;
@@ -69,6 +72,11 @@ const ImageForm: React.FC<{
       }
       formData.append("altText", data.altText);
       res = await uploadImage(formData);
+      if (res.image) {
+        if (setImage) {
+          setImage(res.image);
+        }
+      }
     } else {
       if (imageData) {
         res = await updateImage(imageData.id, data.altText);
@@ -87,10 +95,19 @@ const ImageForm: React.FC<{
           title: "Image uploaded successfully",
           duration: 3000,
         });
+        if (setClose) {
+          setClose(!open);
+        }
         reset();
         imagePreviewUrl.current = null;
       }
     }
+  };
+
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.stopPropagation();
+    event.preventDefault();
+    handleSubmit(submitForm)();
   };
 
   const handleImageChange = (file: File) => {
@@ -101,7 +118,7 @@ const ImageForm: React.FC<{
   return (
     <>
       <Form {...form}>
-        <form className="space-y-8" onSubmit={handleSubmit(submitForm)}>
+        <form className="max-w-96 min-w-72 space-y-8 w-full" onSubmit={onSubmit}>
           <FormField
             control={form.control}
             name="image"
@@ -124,7 +141,7 @@ const ImageForm: React.FC<{
                       alt={field.value[0]?.name}
                       width={field.value[0]?.width || 400}
                       height={field.value[0]?.height || 100}
-                      className="aspect-video object-fill object-center"
+                      className="w-full h-full aspect-auto object-fill object-center"
                     />
                   ) : (
                     <ImageIcon size={100} />
@@ -156,6 +173,7 @@ const ImageForm: React.FC<{
                     type="text"
                     id="altText"
                     placeholder="Enter Alt Text"
+                    className="w-full"
                     {...field}
                     disabled={isSubmitting}
                   />

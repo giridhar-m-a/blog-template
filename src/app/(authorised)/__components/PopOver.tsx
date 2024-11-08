@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 type props = {
@@ -14,6 +15,9 @@ type props = {
   title: string;
   description?: string;
   trigger: ReactNode;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  className?: string;
 };
 
 const PopOver: React.FC<props> = ({
@@ -21,11 +25,14 @@ const PopOver: React.FC<props> = ({
   title,
   description,
   trigger,
+  open,
+  setOpen,
+  className,
 }) => {
   return (
-    <Dialog>
+    <Dialog open={open || false} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className={cn("lg:max-w-screen max-h-screen", className)}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
