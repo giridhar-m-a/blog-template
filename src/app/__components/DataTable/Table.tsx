@@ -17,6 +17,11 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+/**
+ * This component is used to render the data table.
+ * @param {props} props
+ */
+
 type props<T> = {
   columns: ColumnDef<T>[];
   data: T[];
