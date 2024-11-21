@@ -28,6 +28,9 @@ import ImageSelector from "../../images/__components/image-selector/ImageSelecto
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { updatePost } from "@/app/__actions/posts/update-post";
+import { useMutation } from "@tanstack/react-query";
+import { publishUnPublishPost } from "@/app/__actions/posts/publish-unPublishPost";
+import { set } from "date-fns";
 
 type Props = {
   data?: PostById;
@@ -36,10 +39,32 @@ type Props = {
 };
 
 const PostForm: React.FC<Props> = ({ data, option, categories }) => {
+  const [published, setPublished] = useState(data?.isPublished || false);
+  const [isPending, setIsPending] = useState(false);
   const categoryIds: number[] = [];
   const [isSlugAvailable, setIsSlugAvailable] = useState<
     "available" | "notAvailable" | null
   >(null);
+
+  const publishOrUnPublishPost = () => {
+    setIsPending(true);
+    const { data: res } = useMutation({
+      mutationKey: ["Publish/UnpublishPost"],
+      mutationFn: async () => await publishUnPublishPost(data?.id || 0),
+    });
+    setIsPending(false);
+    if (res && res.ok) {
+      setPublished(!published);
+      toast({
+        title: res.message,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: res?.message,
+      });
+    }
+  };
 
   const [featureImage, setFeatureImage] = useState<image | null>(null);
 
@@ -394,9 +419,16 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
           className="w-full"
           onClick={handleSubmit(onSubmit)}
         >
-          Save
+          save
         </Button>
-        <Button className="w-full">Publish</Button>
+
+        <Button
+          className="w-full"
+          disabled={isPending}
+          onClick={publishOrUnPublishPost}
+        >
+          {!data?.isPublished ? "Publish" : "Unpublish"}
+        </Button>
       </div>
     </>
   );
