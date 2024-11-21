@@ -19,19 +19,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import getSlug from "@/lib/getSlug";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { image } from "@prisma/client";
+import { image, PostCategory } from "@prisma/client";
 import { CircleCheck, CircleX, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import ImageSelector from "../../images/__components/image-selector/ImageSelector";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { updatePost } from "@/app/__actions/posts/update-post";
 
 type Props = {
   data?: PostById;
+  categories: PostCategory[];
   option: "update" | "create";
 };
 
-const PostForm: React.FC<Props> = ({ data, option }) => {
+const PostForm: React.FC<Props> = ({ data, option, categories }) => {
   const categoryIds: number[] = [];
   const [isSlugAvailable, setIsSlugAvailable] = useState<
     "available" | "notAvailable" | null
@@ -65,15 +69,25 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
     formState: { isSubmitting },
   } = form;
 
-  const onSubmit = async (data: PostFormType) => {
+  const onSubmit = async (postData: PostFormType) => {
     let res;
 
+    console.log(data?.id, option);
+
     if (option === "create") {
-      res = await createPost(data);
-      if (res.ok) {
-        toast({ title: "Post created successfully", duration: 3000 });
-      } else {
-        toast({ title: res.message, duration: 3000, variant: "destructive" });
+      res = await createPost(postData);
+    } else {
+      if (data?.id) {
+        res = await updatePost(data?.id, postData);
+        if (res?.ok) {
+          toast({ title: "Post Updated successfully", duration: 3000 });
+        } else {
+          toast({
+            title: res?.message,
+            duration: 3000,
+            variant: "destructive",
+          });
+        }
       }
     }
   };
@@ -125,164 +139,168 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
   };
 
   return (
-    <Form {...form}>
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel
-                htmlFor="title"
-                className="font-semi-bold text-lg flex gap-2 items-center"
-              >
-                Title
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  id="Title"
-                  placeholder="Title"
-                  {...field}
-                  disabled={isSubmitting}
-                  onChange={(e) => onTitleChange(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel
-                htmlFor="slug"
-                className="font-semi-bold text-lg flex gap-2 items-center"
-              >
-                Slug
-                {isSlugAvailable &&
-                  (isSlugAvailable === "available" ? (
-                    <CircleCheck
-                      className={`text-green-500 text-sm h-4 w-4 ${
-                        isSlugAvailable ? "" : "hidden"
-                      }`}
-                    />
-                  ) : isSlugAvailable === "notAvailable" ? (
-                    <CircleX
-                      className="text-red-500 text-sm h-4 w-4"
-                      size={16}
-                    />
-                  ) : (
-                    ""
-                  ))}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  id="slug"
-                  placeholder="slug"
-                  {...field}
-                  disabled={isSubmitting}
-                  onChange={(e) => onSlugChange(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel
-                htmlFor="description"
-                className="font-semi-bold text-lg flex gap-2 items-center"
-              >
-                Description
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  className="h-24"
-                  id="description"
-                  placeholder="Description"
-                  {...field}
-                  disabled={isSubmitting}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel
-                htmlFor="content"
-                className="font-semi-bold text-lg flex gap-2 items-center"
-              >
-                Content
-              </FormLabel>
-              <FormControl>
-                <TipTapEditor
-                  setContent={field.onChange}
-                  content={field.value}
-                  editorContentClass="h-[34rem]"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid grid-cols-2 gap-6">
+    <>
+      <Form {...form}>
+        <form className="space-y-6">
           <FormField
             control={form.control}
-            name="featureImage"
-            render={() => (
+            name="title"
+            render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  htmlFor="featureImage"
+                  htmlFor="title"
                   className="font-semi-bold text-lg flex gap-2 items-center"
                 >
-                  Feature Image
+                  Title
                 </FormLabel>
-                <ImageSelector
-                  trigger={
-                    <div className="w-full aspect-video bg-secondary rounded-md items-center justify-center flex">
-                      {!featureImage?.url && !data?.featuredImage?.url ? (
-                        <ImageIcon className="w-full aspect-video" size={200} />
-                      ) : (
-                        ""
-                      )}
+                <FormControl>
+                  <Input
+                    type="text"
+                    id="Title"
+                    placeholder="Title"
+                    {...field}
+                    disabled={isSubmitting}
+                    onChange={(e) => onTitleChange(e.target.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel
+                  htmlFor="slug"
+                  className="font-semi-bold text-lg flex gap-2 items-center"
+                >
+                  Slug
+                  {isSlugAvailable &&
+                    (isSlugAvailable === "available" ? (
+                      <CircleCheck
+                        className={`text-green-500 text-sm h-4 w-4 ${
+                          isSlugAvailable ? "" : "hidden"
+                        }`}
+                      />
+                    ) : isSlugAvailable === "notAvailable" ? (
+                      <CircleX
+                        className="text-red-500 text-sm h-4 w-4"
+                        size={16}
+                      />
+                    ) : (
+                      ""
+                    ))}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    id="slug"
+                    placeholder="slug"
+                    {...field}
+                    disabled={isSubmitting}
+                    onChange={(e) => onSlugChange(e.target.value)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel
+                  htmlFor="description"
+                  className="font-semi-bold text-lg flex gap-2 items-center"
+                >
+                  Description
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    className="h-24"
+                    id="description"
+                    placeholder="Description"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel
+                  htmlFor="content"
+                  className="font-semi-bold text-lg flex gap-2 items-center"
+                >
+                  Content
+                </FormLabel>
+                <FormControl>
+                  <TipTapEditor
+                    setContent={field.onChange}
+                    content={field.value}
+                    editorContentClass="h-[34rem]"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="grid grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="featureImage"
+              render={() => (
+                <FormItem>
+                  <FormLabel
+                    htmlFor="featureImage"
+                    className="font-semi-bold text-lg flex gap-2 items-center"
+                  >
+                    Feature Image
+                  </FormLabel>
+                  <ImageSelector
+                    trigger={
+                      <div className="w-full aspect-video bg-secondary rounded-md items-center justify-center flex">
+                        {!featureImage?.url && !data?.featuredImage?.url ? (
+                          <ImageIcon
+                            className="w-full aspect-video"
+                            size={200}
+                          />
+                        ) : (
+                          ""
+                        )}
 
-                      {featureImage?.url ? (
-                        <Image
-                          src={featureImage?.url}
-                          alt={featureImage?.altText}
-                          width={featureImage?.width}
-                          height={featureImage.height}
-                          className="w-full aspect-video rounded-md"
-                        />
-                      ) : data?.featuredImage?.url ? (
-                        <Image
-                          src={data?.featuredImage?.url}
-                          alt=""
-                          width={data?.featuredImage?.width}
-                          height={data?.featuredImage?.height}
-                          className="w-full aspect-video rounded-md"
-                        />
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  }
-                  setImage={onImageSelect}
-                />
-                {/* <FormControl>
+                        {featureImage?.url ? (
+                          <Image
+                            src={featureImage?.url}
+                            alt={featureImage?.altText}
+                            width={featureImage?.width}
+                            height={featureImage.height}
+                            className="w-full aspect-video rounded-md"
+                          />
+                        ) : data?.featuredImage?.url ? (
+                          <Image
+                            src={data?.featuredImage?.url}
+                            alt=""
+                            width={data?.featuredImage?.width}
+                            height={data?.featuredImage?.height}
+                            className="w-full aspect-video rounded-md"
+                          />
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    }
+                    setImage={onImageSelect}
+                  />
+                  {/* <FormControl>
                   <Input
                     type="file"
                     className="hidden"
@@ -292,42 +310,95 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
                     disabled={isSubmitting}
                   />
                 </FormControl> */}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div>
-            <FormField
-              control={form.control}
-              name="keywords"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel
-                    htmlFor="keywords"
-                    className="font-semi-bold text-lg flex gap-2 items-center"
-                  >
-                    Keywords
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="h-24"
-                      id="keywords"
-                      placeholder="keywords"
-                      {...field}
-                      disabled={isSubmitting}
-                    />
-                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="keywords"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel
+                      htmlFor="keywords"
+                      className="font-semi-bold text-lg flex gap-2 items-center"
+                    >
+                      Keywords
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        className="h-24"
+                        id="keywords"
+                        placeholder="keywords"
+                        {...field}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel
+                      htmlFor="Category"
+                      className="font-semi-bold text-lg flex gap-2 items-center"
+                    >
+                      Category
+                    </FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2 flex-wrap">
+                        {categories.map((category) => (
+                          <div
+                            key={category.id}
+                            className="flex items-center gap-2"
+                          >
+                            <Checkbox
+                              id={`${category.id}`}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...field.value, category.id]);
+                                } else {
+                                  field.onChange(
+                                    field.value.filter((c) => c !== category.id)
+                                  );
+                                }
+                              }}
+                              checked={field.value.some(
+                                (c) => c === category.id
+                              )}
+                            />
+                            <Label htmlFor={`${category.id}`}>
+                              {category.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-        </div>
-        <Button type="submit" disabled={isSubmitting}>
-          Submit
+        </form>
+      </Form>
+      <div className="grid grid-cols-2 gap-6 pt-6">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full"
+          onClick={handleSubmit(onSubmit)}
+        >
+          Save
         </Button>
-      </form>
-    </Form>
+        <Button className="w-full">Publish</Button>
+      </div>
+    </>
   );
 };
 

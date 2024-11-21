@@ -1,9 +1,11 @@
+import { getCategories } from "@/app/__actions/PostCategories/get-categories";
 import PostForm from "../__components/PostsForm";
 
-export default function NewPost() {
+export default async function NewPost() {
+  const categories = await getCategories();
   return (
-    <main>
-      <PostForm option="create" />
-    </main>
+    <>
+      <PostForm option="create" categories={categories || []} />
+    </>
   );
 }

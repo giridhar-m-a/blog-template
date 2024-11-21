@@ -1,6 +1,5 @@
 import * as z from "zod";
 
-
 export const PostSchema = z.object({
   title: z
     .string({ required_error: "Title is required" })
@@ -16,7 +15,7 @@ export const PostSchema = z.object({
     .min(50, { message: "Description should not be less than 50 characters" })
     .max(300, { message: "Description should not exceed 300 characters" }),
   featureImage: z.number().optional(),
-  category: z.array(z.coerce.number()).optional(),
+  category: z.array(z.coerce.number()),
   keywords: z
     .string()
     .min(3, { message: "Key words should not be less than 3 characters" })

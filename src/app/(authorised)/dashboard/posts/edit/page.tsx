@@ -1,12 +1,12 @@
 import { getSinglePostById } from "@/app/__actions/posts/get-single-post-by-id";
 import PostForm from "../__components/PostsForm";
+import { getCategories } from "@/app/__actions/PostCategories/get-categories";
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function NewPost({ searchParams }: Props) {
   const { id } = await searchParams;
-
   console.log("id in page : ", id);
   if (!id) {
     return (
@@ -26,9 +26,11 @@ export default async function NewPost({ searchParams }: Props) {
     );
   }
 
+  const categories = await getCategories();
+
   return (
-    <main>
-      <PostForm option="create" data={post} />
-    </main>
+    <>
+      <PostForm option="update" data={post} categories={categories || []} />
+    </>
   );
 }

@@ -20,7 +20,7 @@ export default function RootLayout({
         <AppSideBar />
         <SidebarInset>
           <Header />
-          <div className="p-6 bg-primary-foreground rounded-md min-h-full mx-12">
+          <div className="p-6 bg-primary-foreground rounded-md min-h-[82vh] mx-12 mb-12 pb-12">
             {children}
           </div>
         </SidebarInset>
