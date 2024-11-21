@@ -1,10 +1,10 @@
 "use server";
 import { db } from "@/lib/db";
 
-const getAllPosts = async (admin: boolean) => {
+export const getAllPostsWithoutContent = async (admin: boolean) => {
   const posts = await db.blogPost.findMany({
     where: {
-      isPublished: admin,
+      isPublished: !admin,
     },
     select: {
       id: true,
