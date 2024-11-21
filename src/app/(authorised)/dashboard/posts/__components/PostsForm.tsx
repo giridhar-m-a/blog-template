@@ -1,10 +1,11 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { PostSchema, type PostFormType } from "@/app/__schema/post/PostSchema";
-import { BlogPost } from "@prisma/client";
+import { createPost } from "@/app/__actions/posts/create-post";
 import { PostById } from "@/app/__actions/posts/get-single-post-by-id";
+import { verifySlug } from "@/app/__actions/posts/verify-slug";
+import TipTapEditor from "@/app/__components/TitTap/TipTapEditor";
+import { PostSchema, type PostFormType } from "@/app/__schema/post/PostSchema";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,16 +15,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import TipTapEditor from "@/app/__components/TitTap/TipTapEditor";
-import { useState } from "react";
-import { CircleCheck, CircleX, ImageIcon } from "lucide-react";
-import getSlug from "@/lib/getSlug";
-import { verifySlug } from "@/app/__actions/posts/verify-slug";
 import { Textarea } from "@/components/ui/textarea";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { createPost } from "@/app/__actions/posts/create-post";
 import { useToast } from "@/hooks/use-toast";
+import getSlug from "@/lib/getSlug";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { image } from "@prisma/client";
+import { CircleCheck, CircleX, ImageIcon } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import ImageSelector from "../../images/__components/image-selector/ImageSelector";
 
 type Props = {
   data?: PostById;
@@ -31,16 +32,18 @@ type Props = {
 };
 
 const PostForm: React.FC<Props> = ({ data, option }) => {
-  let category: number[] = [];
+  const categoryIds: number[] = [];
   const [isSlugAvailable, setIsSlugAvailable] = useState<
     "available" | "notAvailable" | null
   >(null);
+
+  const [featureImage, setFeatureImage] = useState<image | null>(null);
 
   const { toast } = useToast();
 
   if (data) {
     data.category.map((item) => {
-      category.push(item.id);
+      categoryIds.push(item.id);
     });
   }
 
@@ -53,14 +56,13 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
       description: data?.description || "",
       featureImage: data?.featuredImage?.id || undefined,
       slug: data?.slug || "",
-      category: category || [],
+      category: categoryIds || [],
     },
   });
 
   const {
-    register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = form;
 
   const onSubmit = async (data: PostFormType) => {
@@ -94,6 +96,12 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
       form.setError("slug", { message: isVerified.message });
     }
   };
+
+  const onImageSelect = (ImageData: image) => {
+    form.setValue("featureImage", ImageData.id);
+    setFeatureImage(ImageData);
+  };
+
   const onTitleChange = async (title: string) => {
     const slug = getSlug(title);
 
@@ -156,7 +164,11 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
                 Slug
                 {isSlugAvailable &&
                   (isSlugAvailable === "available" ? (
-                    <CircleCheck className={`text-green-500 text-sm h-4 w-4 ${isSlugAvailable? "" : "hidden"}`} />
+                    <CircleCheck
+                      className={`text-green-500 text-sm h-4 w-4 ${
+                        isSlugAvailable ? "" : "hidden"
+                      }`}
+                    />
                   ) : isSlugAvailable === "notAvailable" ? (
                     <CircleX
                       className="text-red-500 text-sm h-4 w-4"
@@ -219,6 +231,7 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
                 <TipTapEditor
                   setContent={field.onChange}
                   content={field.value}
+                  editorContentClass="h-[34rem]"
                 />
               </FormControl>
               <FormMessage />
@@ -229,7 +242,7 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
           <FormField
             control={form.control}
             name="featureImage"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel
                   htmlFor="featureImage"
@@ -237,24 +250,39 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
                 >
                   Feature Image
                 </FormLabel>
-                <FormLabel
-                  htmlFor="featureImage"
-                  className="font-semi-bold text-lg flex gap-2 items-center"
-                >
-                  <div className="w-full aspect-video bg-secondary rounded-md items-center justify-center flex">
-                    <ImageIcon className="w-full aspect-video" size={200} />
-                    {data?.featuredImage?.url && (
-                      <Image
-                        src={data?.featuredImage?.url}
-                        alt=""
-                        width={data?.featuredImage?.width}
-                        height={data?.featuredImage?.height}
-                        className="w-full aspect-video rounded-md"
-                      />
-                    )}
-                  </div>
-                </FormLabel>
-                <FormControl>
+                <ImageSelector
+                  trigger={
+                    <div className="w-full aspect-video bg-secondary rounded-md items-center justify-center flex">
+                      {!featureImage?.url && !data?.featuredImage?.url ? (
+                        <ImageIcon className="w-full aspect-video" size={200} />
+                      ) : (
+                        ""
+                      )}
+
+                      {featureImage?.url ? (
+                        <Image
+                          src={featureImage?.url}
+                          alt={featureImage?.altText}
+                          width={featureImage?.width}
+                          height={featureImage.height}
+                          className="w-full aspect-video rounded-md"
+                        />
+                      ) : data?.featuredImage?.url ? (
+                        <Image
+                          src={data?.featuredImage?.url}
+                          alt=""
+                          width={data?.featuredImage?.width}
+                          height={data?.featuredImage?.height}
+                          className="w-full aspect-video rounded-md"
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  }
+                  setImage={onImageSelect}
+                />
+                {/* <FormControl>
                   <Input
                     type="file"
                     className="hidden"
@@ -263,7 +291,7 @@ const PostForm: React.FC<Props> = ({ data, option }) => {
                     {...field}
                     disabled={isSubmitting}
                   />
-                </FormControl>
+                </FormControl> */}
                 <FormMessage />
               </FormItem>
             )}

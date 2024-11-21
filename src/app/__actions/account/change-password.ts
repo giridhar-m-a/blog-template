@@ -12,6 +12,14 @@ import { getUserById } from "../utils/users";
 
 const hash = new BcryptProvider();
 
+/**
+ *
+ * @param data : @type {ChangePasswordType}
+ * @returns {
+ * ok: boolean
+ * message: string}
+ */
+
 export const updatePassword = async (data: ChangePasswordType) => {
   try {
     const authUser = await getAuthUser();

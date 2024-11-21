@@ -1,37 +1,37 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import ImageSelector from "@/app/(authorised)/dashboard/images/__components/image-selector/ImageSelector";
 import {
   Select,
-  SelectGroup,
-  SelectTrigger,
   SelectContent,
-  SelectValue,
+  SelectGroup,
   SelectSeparator,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
+import { image, YoutubeVideo } from "@prisma/client";
 import { SelectItem } from "@radix-ui/react-select";
 import { Editor, JSONContent } from "@tiptap/react";
 import {
-  TvMinimalPlay,
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   Bold,
-  Strikethrough,
-  Underline,
+  Code,
+  ImageIcon,
   Italic,
+  Link,
   List,
   ListOrdered,
-  Code,
-  Link,
   Quote,
-  Undo,
-  Redo,
-  AlignCenter,
-  AlignRight,
-  AlignLeft,
-  AlignJustify,
-  ImageIcon,
+  Strikethrough,
+  TvMinimalPlay,
+  Underline,
 } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
+import VideoSelector from "./VideoSelector";
 
 type Props = {
   editor: Editor | null;
@@ -105,21 +105,17 @@ const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
     return null;
   }
 
-  const addYoutubeVideo = () => {
-    const url = prompt("Enter YouTube URL");
-    if (url) {
+  const addYoutubeVideo = (data: YoutubeVideo) => {
+    if (data) {
       editor.commands.setYoutubeVideo({
-        src: url,
+        src: data.url,
       });
     }
   };
-  const addImage = () => {
-    const url = prompt("Enter Image URL");
-    if (url) {
-      editor.commands.setImage({
-        src: url,
-      });
-    }
+  const addImage = (image: image) => {
+    editor.commands.setImage({
+      src: image.url,
+    });
   };
 
   return (
@@ -261,34 +257,23 @@ const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
         <AlignRight size={14} />
       </Toggle>
 
-      <Toggle
-        pressed={editor.isActive("youtube")}
-        onPressedChange={addYoutubeVideo}
-        variant={"outline"}
-      >
-        <TvMinimalPlay size={14} />
-      </Toggle>
-      <Toggle
-        pressed={editor.isActive("image")}
-        onPressedChange={addImage}
-        variant={"outline"}
-      >
-        <ImageIcon size={14} />
-      </Toggle>
-      <Button
-        onClick={() => editor.chain().focus().redo().run()}
-        variant={"outline"}
-        size={"icon"}
-      >
-        <Redo size={14} />
-      </Button>
-      <Button
-        onClick={() => editor.chain().focus().undo().run()}
-        variant={"outline"}
-        size={"icon"}
-      >
-        <Undo size={14} />
-      </Button>
+      <VideoSelector
+        trigger={
+          <Toggle pressed={editor.isActive("youtube")} variant={"outline"}>
+            <TvMinimalPlay size={14} />
+          </Toggle>
+        }
+        setVideo={addYoutubeVideo}
+      />
+
+      <ImageSelector
+        trigger={
+          <Toggle pressed={editor.isActive("image")} variant={"outline"}>
+            <ImageIcon size={14} />
+          </Toggle>
+        }
+        setImage={addImage}
+      />
     </div>
   );
 };

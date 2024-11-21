@@ -28,7 +28,11 @@ export const updateYouTubeEntry = async (
 
     if (youtubeVideo) {
       revalidatePath("/", "layout");
-      return { ok: true, message: "Video created successfully" };
+      return {
+        ok: true,
+        message: "Video created successfully",
+        data: youtubeVideo,
+      };
     }
 
     return { ok: false, message: "Something went wrong" };
