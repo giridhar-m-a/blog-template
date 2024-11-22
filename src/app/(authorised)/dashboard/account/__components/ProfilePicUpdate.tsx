@@ -6,6 +6,7 @@ import user from "@/public/user.png";
 import { Pencil } from "lucide-react";
 import Image from "next/image";
 import ProfileImageForm from "./ProfileImageForm";
+import { useState } from "react";
 
 type props = {
   profilePic?: string | null;
@@ -24,6 +25,7 @@ const trigger = (
 );
 
 const ProfilePicUpdate: React.FC<props> = ({ profilePic }) => {
+  const [open, setOpen] = useState(false);
   return (
     <div className="relative w-fit rounded-full">
       <Image
@@ -33,8 +35,13 @@ const ProfilePicUpdate: React.FC<props> = ({ profilePic }) => {
         height={200}
         className="rounded-full aspect-square"
       />
-      <PopOver trigger={trigger} title="Update Profile Picture">
-        <ProfileImageForm url={profilePic || user.src} />
+      <PopOver
+        trigger={trigger}
+        title="Update Profile Picture"
+        open={open}
+        setOpen={setOpen}
+      >
+        <ProfileImageForm url={profilePic || user.src} setOpen={setOpen} />
       </PopOver>
     </div>
   );

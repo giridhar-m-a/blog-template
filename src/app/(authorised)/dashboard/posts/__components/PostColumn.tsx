@@ -8,7 +8,7 @@ import {
 import { ShortPost } from "@/Types/ShortPost";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Ellipsis } from "lucide-react";
+import PostOptionDropDown from "./PostOptionDropDown";
 
 export const PostColumn: ColumnDef<ShortPost>[] = [
   {
@@ -83,8 +83,8 @@ export const PostColumn: ColumnDef<ShortPost>[] = [
     header: "Category",
     cell: ({ getValue }) => {
       let text: string = "";
-      getValue<{ name: string }[]>().map((category) => {
-        text += ", " + category.name;
+      getValue<{ name: string }[]>().map((category, index) => {
+        text += `${index === 0 ? "" : ", "} ${category.name}`;
       });
       console.log("text:", text);
       return text.length > 0 ? (
@@ -125,7 +125,7 @@ export const PostColumn: ColumnDef<ShortPost>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const post = row.original;
-      return <Ellipsis />;
+      return <PostOptionDropDown data={post} />;
     },
   },
 ];

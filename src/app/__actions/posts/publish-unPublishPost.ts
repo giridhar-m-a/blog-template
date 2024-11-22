@@ -3,8 +3,11 @@
 import { db } from "@/lib/db";
 import { returnError } from "../utils/return-error";
 import { getAuthUser } from "@/lib/getAuthUser";
+import { revalidatePath } from "next/cache";
 
-export const publishUnPublishPost = async (id: number) => {
+export const publishUnPublishPost = async (
+  id: number
+): Promise<{ ok: boolean; message: string }> => {
   try {
     const AuthUser = await getAuthUser();
 
@@ -45,6 +48,7 @@ export const publishUnPublishPost = async (id: number) => {
           post.isPublished ? "published" : "unpublished"
         } successfully`,
       };
+      revalidatePath("/", "layout");
     }
 
     return {
@@ -52,7 +56,6 @@ export const publishUnPublishPost = async (id: number) => {
       message: "Something went wrong",
     };
   } catch (err) {
-    console.error(err);
     return returnError(err);
   }
 };

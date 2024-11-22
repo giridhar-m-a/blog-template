@@ -5,7 +5,8 @@ import { getAuthUser } from "@/lib/getAuthUser";
 import { returnError } from "../utils/return-error";
 
 export const updatePost = async (id: number, FormData: PostFormType) => {
-  // console.log(data,"update post")
+  console.log(FormData.featureImage, "update post");
+
   try {
     const AuthUser = await getAuthUser();
 
@@ -63,7 +64,7 @@ export const updatePost = async (id: number, FormData: PostFormType) => {
           connect: data.category && data.category.map((id) => ({ id })),
         },
         featuredImage: {
-          connect: data.featureImage ? { id: data.featureImage } : undefined,
+          connect: { id: data.featureImage },
         },
       },
     });
@@ -72,6 +73,7 @@ export const updatePost = async (id: number, FormData: PostFormType) => {
       return {
         ok: true,
         message: "Post updated successfully",
+        data: post,
       };
     }
 

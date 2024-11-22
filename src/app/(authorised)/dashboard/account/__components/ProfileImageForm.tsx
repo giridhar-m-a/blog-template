@@ -22,7 +22,10 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
-const ProfileImageForm: React.FC<{ url: string }> = ({ url }) => {
+const ProfileImageForm: React.FC<{
+  url: string;
+  setOpen: (data: boolean) => void;
+}> = ({ url, setOpen }) => {
   const form = useForm<ProfileImageType>({
     resolver: zodResolver(ProfileImageSchema),
     defaultValues: {
@@ -58,6 +61,7 @@ const ProfileImageForm: React.FC<{ url: string }> = ({ url }) => {
 
     if (res) {
       if (!res.ok) {
+        setOpen(false);
         toast({
           variant: "destructive",
           title: "Error",

@@ -6,7 +6,9 @@ import {
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 
-export const returnError = async (error: unknown) => {
+export const returnError = async (
+  error: unknown
+): Promise<{ message: string; ok: boolean }> => {
   if (error instanceof Error) {
     return { message: error.message, ok: false };
   }
@@ -17,8 +19,8 @@ export const returnError = async (error: unknown) => {
     error instanceof PrismaClientValidationError ||
     error instanceof PrismaClientRustPanicError
   ) {
-    return { massage: "something went wrong", ok: false };
+    return { message: "something went wrong", ok: false };
   }
 
-  return { massage: "something went wrong", ok: false };
+  return { message: "something went wrong", ok: false };
 };

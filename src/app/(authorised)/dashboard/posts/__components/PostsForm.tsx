@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import getSlug from "@/lib/getSlug";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { image, PostCategory } from "@prisma/client";
+import { BlogPost, image, PostCategory } from "@prisma/client";
 import { CircleCheck, CircleX, ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -28,9 +28,8 @@ import ImageSelector from "../../images/__components/image-selector/ImageSelecto
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { updatePost } from "@/app/__actions/posts/update-post";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { publishUnPublishPost } from "@/app/__actions/posts/publish-unPublishPost";
-import { set } from "date-fns";
 
 type Props = {
   data?: PostById;
@@ -39,29 +38,46 @@ type Props = {
 };
 
 const PostForm: React.FC<Props> = ({ data, option, categories }) => {
+  const queryClient = useQueryClient();
   const [published, setPublished] = useState(data?.isPublished || false);
-  const [isPending, setIsPending] = useState(false);
+  const [postId, setPostId] = useState<number | null>(data?.id || null);
+  const [currentOption, setCurrentOption] = useState(option);
+
   const categoryIds: number[] = [];
   const [isSlugAvailable, setIsSlugAvailable] = useState<
     "available" | "notAvailable" | null
   >(null);
 
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["Publish/UnpublishPost"],
+    mutationFn: publishUnPublishPost,
+    onSuccess: (data: { ok: boolean; message: string }) => {
+      if (data) {
+        if (data.ok) {
+          setPublished(!published);
+          toast({
+            title: data.message,
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["getAllShortPosts"],
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: data.message,
+          });
+        }
+      }
+    },
+  });
+
   const publishOrUnPublishPost = () => {
-    setIsPending(true);
-    const { data: res } = useMutation({
-      mutationKey: ["Publish/UnpublishPost"],
-      mutationFn: async () => await publishUnPublishPost(data?.id || 0),
-    });
-    setIsPending(false);
-    if (res && res.ok) {
-      setPublished(!published);
-      toast({
-        title: res.message,
-      });
+    if (postId) {
+      mutate(postId);
     } else {
       toast({
         variant: "destructive",
-        title: res?.message,
+        title: "You need to create a post first",
       });
     }
   };
@@ -95,16 +111,41 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
   } = form;
 
   const onSubmit = async (postData: PostFormType) => {
-    let res;
+    let res: {
+      ok: boolean;
+      message: string;
+      data?: BlogPost;
+    } | null = null;
 
-    console.log(data?.id, option);
-
-    if (option === "create") {
+    if (currentOption === "create") {
+      console.log("create");
       res = await createPost(postData);
+      if (res?.ok) {
+        if (res.data) {
+          setPostId(res.data?.id);
+        }
+        setCurrentOption("update");
+        toast({ title: "Post Updated successfully", duration: 3000 });
+      } else {
+        toast({
+          title: res?.message,
+          duration: 3000,
+          variant: "destructive",
+        });
+      }
     } else {
-      if (data?.id) {
-        res = await updatePost(data?.id, postData);
+      console.log("update");
+      if (data?.id || postId) {
+        if (data?.id) {
+          res = await updatePost(data?.id, postData);
+        } else if (postId) {
+          res = await updatePost(postId, postData);
+        }
+
         if (res?.ok) {
+          if (res.data) {
+            setPostId(res.data?.id);
+          }
           toast({ title: "Post Updated successfully", duration: 3000 });
         } else {
           toast({
@@ -422,13 +463,15 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
           save
         </Button>
 
-        <Button
-          className="w-full"
-          disabled={isPending}
-          onClick={publishOrUnPublishPost}
-        >
-          {!data?.isPublished ? "Publish" : "Unpublish"}
-        </Button>
+        {postId && (
+          <Button
+            className={`w-full ${published ? "bg-red-500" : "bg-green-500"}`}
+            disabled={isPending}
+            onClick={publishOrUnPublishPost}
+          >
+            {!published ? "Publish" : "Unpublish"}
+          </Button>
+        )}
       </div>
     </>
   );

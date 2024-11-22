@@ -41,13 +41,11 @@ export const createPost = async (data: PostFormType) => {
         keywords,
         description,
         slug,
-        featuredImage: featureImage
-          ? {
-              connect: {
-                id: featureImage || undefined,
-              },
-            }
-          : undefined,
+        featuredImage: {
+          connect: {
+            id: featureImage,
+          },
+        },
         author: {
           connect: {
             id: AuthUser.id,
@@ -66,6 +64,7 @@ export const createPost = async (data: PostFormType) => {
     return {
       ok: true,
       message: "Post created successfully",
+      data: newPost,
     };
   } catch (err) {
     console.log(err);

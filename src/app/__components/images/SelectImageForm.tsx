@@ -49,7 +49,9 @@ export default function SelectImageForm({ setClose, setImage, open }: props) {
     e.stopPropagation();
     if (setImage && selectedImage) {
       setImage(selectedImage);
-      setClose && setClose(false);
+      if (setClose) {
+        setClose(false);
+      }
       reset();
     }
   };

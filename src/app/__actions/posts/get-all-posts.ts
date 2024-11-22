@@ -7,9 +7,6 @@ export const getAllPosts = async (
 ): Promise<ShortPost[] | null> => {
   try {
     const posts = await db.blogPost.findMany({
-      where: {
-        isPublished: !admin,
-      },
       orderBy: {
         createdAt: "desc",
       },

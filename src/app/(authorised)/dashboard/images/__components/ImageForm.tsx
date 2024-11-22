@@ -75,11 +75,15 @@ const ImageForm: React.FC<{
       if (res.image) {
         if (setImage) {
           setImage(res.image);
+          if (setClose) {setClose(!open);}
         }
       }
     } else {
       if (imageData) {
         res = await updateImage(imageData.id, data.altText);
+        if (setClose) {
+          setClose(!open);
+        }
       }
     }
 
@@ -118,7 +122,10 @@ const ImageForm: React.FC<{
   return (
     <>
       <Form {...form}>
-        <form className="max-w-96 min-w-72 space-y-8 w-full" onSubmit={onSubmit}>
+        <form
+          className="max-w-96 min-w-72 space-y-8 w-full"
+          onSubmit={onSubmit}
+        >
           <FormField
             control={form.control}
             name="image"
