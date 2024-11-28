@@ -1,22 +1,22 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { returnError } from "../utils/return-error";
-import { getAuthUser } from "@/lib/getAuthUser";
+import { isAuthorised } from "@/lib/getAuthUser";
 import { revalidatePath } from "next/cache";
+import { returnError } from "../utils/return-error";
 
 export const publishUnPublishPost = async (
   id: number
 ): Promise<{ ok: boolean; message: string }> => {
   try {
-    const AuthUser = await getAuthUser();
+    const { message, user: AuthUser } = await isAuthorised([
+      "admin",
+      "seo",
+      "manager",
+    ]);
 
     if (!AuthUser) {
-      throw new Error("You are not logged in");
-    }
-
-    if (!["admin", "seo", "manager"].includes(AuthUser.role)) {
-      throw new Error("You are not authorized");
+      throw new Error(message);
     }
 
     const existingPost = await db.blogPost.findUnique({

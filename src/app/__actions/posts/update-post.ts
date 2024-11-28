@@ -1,21 +1,19 @@
 "use server";
 import { PostSchema, type PostFormType } from "@/app/__schema/post/PostSchema";
 import { db } from "@/lib/db";
-import { getAuthUser } from "@/lib/getAuthUser";
+import { isAuthorised } from "@/lib/getAuthUser";
 import { returnError } from "../utils/return-error";
 
 export const updatePost = async (id: number, FormData: PostFormType) => {
-  console.log(FormData.featureImage, "update post");
-
   try {
-    const AuthUser = await getAuthUser();
+    const { message, user: AuthUser } = await isAuthorised([
+      "admin",
+      "seo",
+      "manager",
+    ]);
 
     if (!AuthUser) {
-      throw new Error("You are not logged in");
-    }
-
-    if (!["admin", "seo", "manager"].includes(AuthUser.role)) {
-      throw new Error("You are not authorized");
+      throw new Error(message);
     }
 
     const parsedData = PostSchema.safeParse(FormData);
@@ -82,7 +80,6 @@ export const updatePost = async (id: number, FormData: PostFormType) => {
       message: "Something went wrong",
     };
   } catch (err) {
-    console.error(err);
     return returnError(err);
   }
 };

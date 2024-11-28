@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import getSlug from "@/lib/getSlug";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BlogPost, image, PostCategory } from "@prisma/client";
-import { CircleCheck, CircleX, ImageIcon } from "lucide-react";
+import { CircleCheck, CircleX, ImageIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -30,6 +30,15 @@ import { Label } from "@/components/ui/label";
 import { updatePost } from "@/app/__actions/posts/update-post";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { publishUnPublishPost } from "@/app/__actions/posts/publish-unPublishPost";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
   data?: PostById;
@@ -42,6 +51,7 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
   const [published, setPublished] = useState(data?.isPublished || false);
   const [postId, setPostId] = useState<number | null>(data?.id || null);
   const [currentOption, setCurrentOption] = useState(option);
+  const [open, setOpen] = useState(false);
 
   const categoryIds: number[] = [];
   const [isSlugAvailable, setIsSlugAvailable] = useState<
@@ -208,165 +218,209 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
     <>
       <Form {...form}>
         <form className="space-y-6">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel
-                  htmlFor="title"
-                  className="font-semi-bold text-lg flex gap-2 items-center"
-                >
-                  Title
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    id="Title"
-                    placeholder="Title"
-                    {...field}
-                    disabled={isSubmitting}
-                    onChange={(e) => onTitleChange(e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel
-                  htmlFor="slug"
-                  className="font-semi-bold text-lg flex gap-2 items-center"
-                >
-                  Slug
-                  {isSlugAvailable &&
-                    (isSlugAvailable === "available" ? (
-                      <CircleCheck
-                        className={`text-green-500 text-sm h-4 w-4 ${
-                          isSlugAvailable ? "" : "hidden"
-                        }`}
-                      />
-                    ) : isSlugAvailable === "notAvailable" ? (
-                      <CircleX
-                        className="text-red-500 text-sm h-4 w-4"
-                        size={16}
-                      />
-                    ) : (
-                      ""
-                    ))}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    id="slug"
-                    placeholder="slug"
-                    {...field}
-                    disabled={isSubmitting}
-                    onChange={(e) => onSlugChange(e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel
-                  htmlFor="description"
-                  className="font-semi-bold text-lg flex gap-2 items-center"
-                >
-                  Description
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    className="h-24"
-                    id="description"
-                    placeholder="Description"
-                    {...field}
-                    disabled={isSubmitting}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel
-                  htmlFor="content"
-                  className="font-semi-bold text-lg flex gap-2 items-center"
-                >
-                  Content
-                </FormLabel>
-                <FormControl>
-                  <TipTapEditor
-                    setContent={field.onChange}
-                    content={field.value}
-                    editorContentClass="h-[34rem]"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="grid grid-cols-2 gap-6">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <div className="flex justify-between">
+              <h1>
+                {currentOption === "create" ? "Create Post" : "Update Post"}
+              </h1>
+              <SheetTrigger asChild>
+                <Button variant="outline">
+                  <Save />
+                </Button>
+              </SheetTrigger>
+            </div>
             <FormField
               control={form.control}
-              name="featureImage"
-              render={() => (
+              name="title"
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel
-                    htmlFor="featureImage"
+                    htmlFor="title"
                     className="font-semi-bold text-lg flex gap-2 items-center"
                   >
-                    Feature Image
+                    Title
                   </FormLabel>
-                  <ImageSelector
-                    trigger={
-                      <div className="w-full aspect-video bg-secondary rounded-md items-center justify-center flex">
-                        {!featureImage?.url && !data?.featuredImage?.url ? (
-                          <ImageIcon
-                            className="w-full aspect-video"
-                            size={200}
-                          />
-                        ) : (
-                          ""
-                        )}
+                  <FormControl>
+                    <Input
+                      type="text"
+                      id="Title"
+                      placeholder="Title"
+                      {...field}
+                      disabled={isSubmitting}
+                      onChange={(e) => onTitleChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                        {featureImage?.url ? (
-                          <Image
-                            src={featureImage?.url}
-                            alt={featureImage?.altText}
-                            width={featureImage?.width}
-                            height={featureImage.height}
-                            className="w-full aspect-video rounded-md"
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel
+                    htmlFor="content"
+                    className="font-semi-bold text-lg flex gap-2 items-center"
+                  >
+                    Content
+                  </FormLabel>
+                  <FormControl>
+                    <TipTapEditor
+                      setContent={field.onChange}
+                      content={field.value}
+                      editorContentClass="h-[34rem]"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <SheetContent className="space-y-4">
+              <SheetHeader>
+                <SheetTitle>
+                  <div className="grid grid-cols-2 gap-6 pt-6">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full"
+                      onClick={handleSubmit(onSubmit)}
+                    >
+                      save
+                    </Button>
+
+                    {postId && (
+                      <Button
+                        className={`w-full ${
+                          published ? "bg-red-500" : "bg-green-500"
+                        }`}
+                        disabled={isPending}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          publishOrUnPublishPost();
+                        }}
+                      >
+                        {!published ? "Publish" : "Unpublish"}
+                      </Button>
+                    )}
+                  </div>
+                </SheetTitle>
+              </SheetHeader>
+              <ScrollArea className="h-[34rem]">
+                <div className="space-y-4 pr-6 pl-1">
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel
+                          htmlFor="slug"
+                          className="font-semi-bold text-lg flex gap-2 items-center"
+                        >
+                          Slug
+                          {isSlugAvailable &&
+                            (isSlugAvailable === "available" ? (
+                              <CircleCheck
+                                className={`text-green-500 text-sm h-4 w-4 ${
+                                  isSlugAvailable ? "" : "hidden"
+                                }`}
+                              />
+                            ) : isSlugAvailable === "notAvailable" ? (
+                              <CircleX
+                                className="text-red-500 text-sm h-4 w-4"
+                                size={16}
+                              />
+                            ) : (
+                              ""
+                            ))}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="text"
+                            id="slug"
+                            placeholder="slug"
+                            {...field}
+                            disabled={isSubmitting}
+                            onChange={(e) => onSlugChange(e.target.value)}
                           />
-                        ) : data?.featuredImage?.url ? (
-                          <Image
-                            src={data?.featuredImage?.url}
-                            alt=""
-                            width={data?.featuredImage?.width}
-                            height={data?.featuredImage?.height}
-                            className="w-full aspect-video rounded-md"
-                          />
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    }
-                    setImage={onImageSelect}
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  {/* <FormControl>
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel
+                          htmlFor="description"
+                          className="font-semi-bold text-lg flex gap-2 items-center"
+                        >
+                          Description
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            className="h-24"
+                            id="description"
+                            placeholder="Description"
+                            {...field}
+                            disabled={isSubmitting}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="featureImage"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel
+                          htmlFor="featureImage"
+                          className="font-semi-bold text-lg flex gap-2 items-center"
+                        >
+                          Feature Image
+                        </FormLabel>
+                        <ImageSelector
+                          trigger={
+                            <div className="w-full aspect-video bg-secondary rounded-md items-center justify-center flex">
+                              {!featureImage?.url &&
+                              !data?.featuredImage?.url ? (
+                                <ImageIcon
+                                  className="w-full aspect-video"
+                                  size={200}
+                                />
+                              ) : (
+                                ""
+                              )}
+
+                              {featureImage?.url ? (
+                                <Image
+                                  src={featureImage?.url}
+                                  alt={featureImage?.altText}
+                                  width={featureImage?.width}
+                                  height={featureImage.height}
+                                  className="w-full aspect-video rounded-md"
+                                />
+                              ) : data?.featuredImage?.url ? (
+                                <Image
+                                  src={data?.featuredImage?.url}
+                                  alt=""
+                                  width={data?.featuredImage?.width}
+                                  height={data?.featuredImage?.height}
+                                  className="w-full aspect-video rounded-md"
+                                />
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                          }
+                          setImage={onImageSelect}
+                        />
+                        {/* <FormControl>
                   <Input
                     type="file"
                     className="hidden"
@@ -376,103 +430,91 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
                     disabled={isSubmitting}
                   />
                 </FormControl> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="keywords"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel
-                      htmlFor="keywords"
-                      className="font-semi-bold text-lg flex gap-2 items-center"
-                    >
-                      Keywords
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="h-24"
-                        id="keywords"
-                        placeholder="keywords"
-                        {...field}
-                        disabled={isSubmitting}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel
-                      htmlFor="Category"
-                      className="font-semi-bold text-lg flex gap-2 items-center"
-                    >
-                      Category
-                    </FormLabel>
-                    <FormControl>
-                      <div className="flex gap-2 flex-wrap">
-                        {categories.map((category) => (
-                          <div
-                            key={category.id}
-                            className="flex items-center gap-2"
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="keywords"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel
+                            htmlFor="keywords"
+                            className="font-semi-bold text-lg flex gap-2 items-center"
                           >
-                            <Checkbox
-                              id={`${category.id}`}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  field.onChange([...field.value, category.id]);
-                                } else {
-                                  field.onChange(
-                                    field.value.filter((c) => c !== category.id)
-                                  );
-                                }
-                              }}
-                              checked={field.value.some(
-                                (c) => c === category.id
-                              )}
+                            Keywords
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="h-24"
+                              id="keywords"
+                              placeholder="keywords"
+                              {...field}
+                              disabled={isSubmitting}
                             />
-                            <Label htmlFor={`${category.id}`}>
-                              {category.name}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel
+                            htmlFor="Category"
+                            className="font-semi-bold text-lg flex gap-2 items-center"
+                          >
+                            Category
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex gap-2 flex-wrap">
+                              {categories.map((category) => (
+                                <div
+                                  key={category.id}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Checkbox
+                                    id={`${category.id}`}
+                                    onCheckedChange={(checked) => {
+                                      if (checked) {
+                                        field.onChange([
+                                          ...field.value,
+                                          category.id,
+                                        ]);
+                                      } else {
+                                        field.onChange(
+                                          field.value.filter(
+                                            (c) => c !== category.id
+                                          )
+                                        );
+                                      }
+                                    }}
+                                    checked={field.value.some(
+                                      (c) => c === category.id
+                                    )}
+                                  />
+                                  <Label htmlFor={`${category.id}`}>
+                                    {category.name}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </ScrollArea>
+            </SheetContent>
+          </Sheet>
         </form>
       </Form>
-      <div className="grid grid-cols-2 gap-6 pt-6">
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full"
-          onClick={handleSubmit(onSubmit)}
-        >
-          save
-        </Button>
-
-        {postId && (
-          <Button
-            className={`w-full ${published ? "bg-red-500" : "bg-green-500"}`}
-            disabled={isPending}
-            onClick={publishOrUnPublishPost}
-          >
-            {!published ? "Publish" : "Unpublish"}
-          </Button>
-        )}
-      </div>
     </>
   );
 };

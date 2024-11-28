@@ -12,7 +12,7 @@ export const getSinglePostById = async (
   id: number
 ): Promise<PostById | null> => {
   try {
-    console.log("id : ", id); 
+    
     const post = await db.blogPost.findUnique({
       where: {
         id,

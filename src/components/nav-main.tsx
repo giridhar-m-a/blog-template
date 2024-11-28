@@ -17,23 +17,9 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import type { SidebarMenuItemType } from "@/Types/SidebarMenu";
 
-
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url?: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-      icon?: LucideIcon;
-    }[];
-  }[];
-}) {
+export function NavMain({ items }: { items: SidebarMenuItemType[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
@@ -47,18 +33,25 @@ export function NavMain({
           >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                {item.url?<a href={item.url}>
+                {item.url ? (
+                  <a href={item.url}>
+                    <SidebarMenuButton tooltip={item.title}>
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                      {item.items && (
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      )}
+                    </SidebarMenuButton>
+                  </a>
+                ) : (
                   <SidebarMenuButton tooltip={item.title}>
-                    {item.icon && <item.icon/>}
+                    {item.icon && <item.icon />}
                     <span>{item.title}</span>
-                    {item.items && <ChevronRight
-                        className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>}
-                  </SidebarMenuButton></a>:<SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon/>}
-                  <span>{item.title}</span>
-                  {item.items && <ChevronRight
-                      className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>}
-                </SidebarMenuButton>}
+                    {item.items && (
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    )}
+                  </SidebarMenuButton>
+                )}
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarMenuSub>

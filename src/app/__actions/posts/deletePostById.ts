@@ -1,11 +1,11 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { getAuthUser } from "@/lib/getAuthUser";
+import { getAuthUser, isAuthorised } from "@/lib/getAuthUser";
 
 /**
  *
- * @param id
+ * @param id : @type {number} id of the post to be deleted
  * @returns {
  * ok: boolean
  * message: string}
@@ -16,14 +16,10 @@ import { getAuthUser } from "@/lib/getAuthUser";
 
 export const deletePostById = async (id: number) => {
   try {
-    const user = await getAuthUser();
+    const { message, user } = await isAuthorised(["admin", "seo", "manager"]);
 
     if (!user) {
-      throw new Error("You are not logged in");
-    }
-
-    if (!["admin", "seo", "manager"].includes(user.role)) {
-      throw new Error("You are not authorized");
+      throw new Error(message);
     }
 
     const existingPost = await db.blogPost.findUnique({

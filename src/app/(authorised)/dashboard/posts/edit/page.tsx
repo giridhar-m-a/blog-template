@@ -1,6 +1,6 @@
 import { getSinglePostById } from "@/app/__actions/posts/get-single-post-by-id";
 import PostForm from "../__components/PostsForm";
-import { getCategories } from "@/app/__actions/PostCategories/get-categories";
+import { getPostCategories } from "@/app/__actions/PostCategories/get-categories";
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
@@ -26,7 +26,7 @@ export default async function NewPost({ searchParams }: Props) {
     );
   }
 
-  const categories = await getCategories();
+  const categories = await getPostCategories();
 
   return (
     <>

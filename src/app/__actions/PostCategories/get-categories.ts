@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/lib/db";
 
-export const getCategories = async () => {
+export const getPostCategories = async () => {
   try {
     return await db.postCategory.findMany();
   } catch (err) {
