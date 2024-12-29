@@ -20,7 +20,7 @@ const PostTable: React.FC<props> = ({ data }) => {
     },
   });
 
-  return <DataTable columns={PostColumn} data={posts || []} />;
+  return <DataTable columns={PostColumn} data={posts || []} isPaginated />;
 };
 
 export default PostTable;

@@ -2,6 +2,7 @@ import { SidebarMenuItemType } from "@/Types/SidebarMenu";
 import {
   ClipboardPlus,
   Folder,
+  Image,
   Layers3,
   ScrollText,
   StickyNote,
@@ -17,7 +18,7 @@ export const SeoMenu: SidebarMenuItemType[] = [
       {
         title: "Images",
         url: "/dashboard/images",
-        icon: Video,
+        icon: Image,
       },
       {
         title: "Videos",
