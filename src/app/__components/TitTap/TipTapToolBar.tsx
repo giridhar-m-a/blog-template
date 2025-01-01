@@ -215,7 +215,7 @@ const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
       </Toggle>
       <Toggle
         variant={"outline"}
-        pressed={editor.isActive("codeBlock")}
+        pressed={editor.isActive("customCodeBlock")}
         onPressedChange={() => editor.chain().focus().toggleCodeBlock().run()}
       >
         <Code size={14} />

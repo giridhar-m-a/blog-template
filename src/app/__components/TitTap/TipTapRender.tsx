@@ -1,13 +1,17 @@
+"use client";
+import { EditorContent } from "@tiptap/react";
+import getEditor from "./editor";
+
 type props = {
   content: string;
 };
 
 const TipTapRender: React.FC<props> = ({ content }) => {
   return (
-    <div
-      dangerouslySetInnerHTML={{ __html: content }}
-      className="rich-text whitespace-pre-wrap"
-    ></div>
+    <EditorContent
+      style={{ whiteSpace: "pre-line" }}
+      editor={getEditor(false, () => {}, content)}
+    />
   );
 };
 
