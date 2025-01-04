@@ -89,6 +89,7 @@ export default function PostOptionDropDown({ data }: { data: ShortPost }) {
           <DropdownMenuItem onClick={editPost}>edit</DropdownMenuItem>
           <DropdownMenuItem
             onClick={deletePost}
+            disabled={deletePending}
             className="bg-red-600 hover:bg-red-600 focus:bg-red-600 "
           >
             Delete

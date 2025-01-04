@@ -3,10 +3,12 @@
 import { getAuthUser } from "@/lib/getAuthUser";
 import { returnError } from "../utils/return-error";
 import { ProfileImageSchema } from "@/app/__schema/account/profilepicSchema";
-import { db } from "@/lib/db";
+import db from "@/db";
 import { deleteImageByPublicId } from "../utils/imageDeleter";
 import imageUploader from "../utils/imageUploader";
 import { revalidatePath } from "next/cache";
+import { profile } from "@/db/schemas/profile";
+import { eq } from "drizzle-orm";
 
 export const updateProfilePic = async (file: FormData) => {
   try {
@@ -28,10 +30,8 @@ export const updateProfilePic = async (file: FormData) => {
 
     const { image } = parsedData.data;
 
-    const isExistingProfile = await db.profile.findUnique({
-      where: {
-        userId: authUser.id,
-      },
+    const isExistingProfile = await db.query.profile.findFirst({
+      where: eq(profile.userId, authUser.id as string),
     });
 
     if (isExistingProfile) {
@@ -55,17 +55,17 @@ export const updateProfilePic = async (file: FormData) => {
         throw new Error("Image upload failed");
       }
 
-      const updatedProfile = await db.profile.update({
-        where: {
-          userId: authUser.id,
-        },
-        data: {
+      const updatedProfile = await db
+        .update(profile)
+        .set({
           publicId: newProfileImage.public_id,
           url: newProfileImage.secure_url,
-        },
-      });
+          fileName: newProfileImage.original_filename,
+        })
+        .returning()
+        .where(eq(profile.id, isExistingProfile.id));
 
-      if (updatedProfile) {
+      if (updatedProfile.length > 0) {
         revalidatePath("/", "layout");
         return { ok: true, message: "Profile image updated successfully" };
       }
@@ -79,20 +79,17 @@ export const updateProfilePic = async (file: FormData) => {
         throw new Error("Image upload failed");
       }
 
-      const newProfile = await db.profile.create({
-        data: {
-          user: {
-            connect: {
-              id: authUser.id,
-            },
-          },
+      const newProfile = await db
+        .insert(profile)
+        .values({
           publicId: newProfileImage.public_id,
           url: newProfileImage.secure_url,
           fileName: newProfileImage.original_filename,
-        },
-      });
+          userId: authUser.id as string,
+        })
+        .returning();
 
-      if (newProfile) {
+      if (newProfile.length > 0) {
         revalidatePath("/", "layout");
         return { ok: true, message: "Profile image created successfully" };
       }

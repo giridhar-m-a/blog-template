@@ -1,6 +1,9 @@
 "use server";
 
-import { db } from "@/lib/db";
+import db from "@/db";
+import { token as tokenSchema } from "@/db/schemas/token";
+import { user } from "@/db/schemas/user";
+import { eq } from "drizzle-orm";
 import { JWTExpired } from "jose/errors";
 import { veryfyToken } from "../utils/jwt-token";
 import { returnError } from "../utils/return-error";
@@ -18,35 +21,31 @@ export const verifyEmail = async (token: string) => {
   try {
     const verifiedPayload = await veryfyToken(token);
 
-    // console.log("verifiedPayload: ", verifiedPayload);
-
-    const existingToken = await db.token.findUnique({
-      where: {
-        token: token,
-      },
+    const existingToken = await db.query.token.findFirst({
+      where: eq(tokenSchema.token, token),
     });
-
-    console.log("existingToken: ", existingToken);
 
     if (!existingToken) {
       throw new Error("Invalid token");
     }
 
-    const user = await db.user.findUnique({
-      where: {
-        email: existingToken.email,
-      },
+    if (existingToken.purpose !== "verification") {
+      throw new Error("Invalid token purpose");
+    }
+
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.email, existingToken.email),
     });
 
-    if (!user) {
+    if (!existingUser) {
       throw new Error("User not found");
     }
 
-    if (user.isVerified) {
+    if (existingUser.isVerified) {
       throw new Error("User already verified");
     }
     if (verifiedPayload instanceof JWTExpired) {
-      return sendRenewedVerificationToken(user);
+      return sendRenewedVerificationToken(existingUser);
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -56,29 +55,27 @@ export const verifyEmail = async (token: string) => {
       //@ts-ignore
       const { id, email, name } = verifiedPayload.payload as verifiedPayload;
 
-      if (id !== user.id || email !== user.email || name !== user.name) {
+      if (
+        id !== existingUser.id ||
+        email !== existingUser.email ||
+        name !== existingUser.name
+      ) {
         throw new Error("Invalid token");
       }
 
-      await db.token.delete({
-        where: {
-          email: user.email,
-        },
+      await db.transaction(async (tx) => {
+        const deletedToken = await tx
+          .delete(tokenSchema)
+          .where(eq(tokenSchema.token, token));
+
+        await tx
+          .update(user)
+          .set({
+            isVerified: true,
+            verifiedAt: new Date(),
+          })
+          .where(eq(user.email, existingUser.email));
       });
-    }
-
-    const updatedUser = await db.user.update({
-      where: {
-        email: user.email,
-      },
-      data: {
-        isVerified: true,
-        verifiedAt: new Date(),
-      },
-    });
-
-    if (!updatedUser) {
-      throw new Error("User not updated");
     }
 
     return {

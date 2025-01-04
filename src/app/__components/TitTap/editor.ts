@@ -26,7 +26,7 @@ const headingConfig: Partial<HeadingOptions> = {
     class: "text-2xl font-bold",
   },
 };
-export default function getEditor(
+export default function GetEditor(
   isEditable: boolean,
   onChange: (content: string) => void,
   content?: string

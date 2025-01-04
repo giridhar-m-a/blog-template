@@ -3,9 +3,10 @@ import {
   PostCategoryFormType,
   PostCategorySchema,
 } from "@/app/__schema/post/PostCategorySchema";
+import db from "@/db";
+import { blogPostCategory } from "@/db/schemas/blog-post-category";
+import { eq } from "drizzle-orm";
 import { returnError } from "../utils/return-error";
-import { PostCategory } from "@prisma/client";
-import { db } from "@/lib/db";
 
 export const updatePostCategory = async ({
   formData,
@@ -13,7 +14,11 @@ export const updatePostCategory = async ({
 }: {
   formData: PostCategoryFormType;
   id: number;
-}): Promise<{ ok: boolean; message: string; data?: PostCategory }> => {
+}): Promise<{
+  ok: boolean;
+  message: string;
+  data?: typeof blogPostCategory.$inferSelect;
+}> => {
   try {
     const ParsedData = PostCategorySchema.safeParse(formData);
 
@@ -23,22 +28,24 @@ export const updatePostCategory = async ({
 
     const { data } = ParsedData;
 
-    const existingCategory = await db.postCategory.findUnique({
-      where: {
-        id,
-      },
+    const existingCategory = await db.query.blogPostCategory.findFirst({
+      where: eq(blogPostCategory.id, id),
     });
 
     if (!existingCategory) {
       throw new Error("Category does not exists");
     }
 
-    const newCategory = await db.postCategory.update({ where: { id }, data });
+    const newCategory = await db
+      .update(blogPostCategory)
+      .set(data)
+      .where(eq(blogPostCategory.id, id))
+      .returning();
 
     return {
       ok: true,
-      message: "Category created successfully",
-      data: newCategory,
+      message: "Category updated successfully",
+      data: newCategory[0],
     };
   } catch (error) {
     return returnError(error);

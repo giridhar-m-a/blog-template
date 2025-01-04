@@ -1,20 +1,22 @@
 import {
   Tooltip,
   TooltipContent,
-  TooltipTrigger,
   TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PostCategory } from "@prisma/client";
+import { blogPostCategory } from "@/db/schemas/blog-post-category";
 import { ColumnDef } from "@tanstack/react-table";
-import { Ellipsis } from "lucide-react";
+import CategoriesOption from "./CategoriesOption";
 
-export const PostCategoryColumn: ColumnDef<PostCategory>[] = [
+export const PostCategoryColumn: ColumnDef<
+  typeof blogPostCategory.$inferSelect
+>[] = [
   {
     header: "S No.",
     cell: ({ row }) => row.index + 1,
   },
   {
-    accessorKey: "name",
+    accessorKey: "title",
     header: "Name",
     cell: ({ getValue }) => <>{getValue<string>()}</>,
   },
@@ -42,6 +44,6 @@ export const PostCategoryColumn: ColumnDef<PostCategory>[] = [
   },
   {
     header: "Actions",
-    cell: ({ row }) => <Ellipsis />,
+    cell: ({ row }) => <CategoriesOption data={row.original} />,
   },
 ];

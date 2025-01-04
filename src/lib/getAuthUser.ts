@@ -1,7 +1,8 @@
 import { auth, ExtendedUser } from "@/auth";
-import { Role } from "@prisma/client";
-import { db } from "./db";
+import db from "@/db";
 import { returnError } from "@/app/__actions/utils/return-error";
+import { eq } from "drizzle-orm";
+import { user } from "@/db/schemas/user";
 
 export const getAuthUser = async (): Promise<ExtendedUser | null> => {
   /**
@@ -20,7 +21,7 @@ export const getAuthUser = async (): Promise<ExtendedUser | null> => {
 };
 
 export const isAuthorised = async (
-  role: Role[]
+  role: string[]
 ): Promise<{ ok: boolean; message: string; user?: ExtendedUser }> => {
   /**
    * This function checks weather the user has permission to perform the action
@@ -36,24 +37,22 @@ export const isAuthorised = async (
    */
 
   try {
-    const user = await getAuthUser();
+    const authUser = await getAuthUser();
 
-    if (!user) {
+    if (!authUser) {
       throw new Error("You are not logged in");
     }
 
-    const existingUser = await db.user.findUnique({
-      where: {
-        id: user?.id,
-      },
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.id, authUser.id as string),
     });
     if (!existingUser) {
       throw new Error("User not found");
     }
-    if (![...role, Role.Super_Admin].includes(existingUser.role)) {
+    if (![...role, "Super_Admin"].includes(existingUser.role)) {
       throw new Error("You are not authorized");
     }
-    return { ok: true, message: "You are authorized", user };
+    return { ok: true, message: "You are authorized", user: authUser };
   } catch (err) {
     return returnError(err);
   }

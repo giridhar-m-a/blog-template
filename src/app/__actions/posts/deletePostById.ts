@@ -1,7 +1,9 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { getAuthUser, isAuthorised } from "@/lib/getAuthUser";
+import db from "@/db";
+import { blogPost } from "@/db/schemas/blog-post";
+import { isAuthorised } from "@/lib/getAuthUser";
+import { eq } from "drizzle-orm";
 
 /**
  *
@@ -22,21 +24,15 @@ export const deletePostById = async (id: number) => {
       throw new Error(message);
     }
 
-    const existingPost = await db.blogPost.findUnique({
-      where: {
-        id: id,
-      },
+    const existingPost = await db.query.blogPost.findFirst({
+      where: eq(blogPost.id, id),
     });
 
     if (!existingPost) {
       throw new Error("Post not found");
     }
 
-    await db.blogPost.delete({
-      where: {
-        id: id,
-      },
-    });
+    await db.delete(blogPost).where(eq(blogPost.id, id));
     return { ok: true, message: "Post deleted successfully" };
   } catch (err) {
     console.log(err);

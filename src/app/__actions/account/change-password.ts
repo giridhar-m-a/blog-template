@@ -5,10 +5,12 @@ import {
   ChangePasswordType,
 } from "@/app/__schema/account/ChangePasswordSchema";
 import { BcryptProvider } from "@/lib/Bcrypt.provider";
-import { db } from "@/lib/db";
+import db from "@/db";
 import { getAuthUser } from "@/lib/getAuthUser";
 import { returnError } from "../utils/return-error";
 import { getUserById } from "../utils/users";
+import { user } from "@/db/schemas/user";
+import { eq } from "drizzle-orm";
 
 const hash = new BcryptProvider();
 
@@ -57,14 +59,10 @@ export const updatePassword = async (data: ChangePasswordType) => {
 
     const hashedPassword = await hash.hash(newPassword);
 
-    await db.user.update({
-      where: {
-        id: authUser.id,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
+    await db
+      .update(user)
+      .set({ password: hashedPassword })
+      .where(eq(user.id, authUser.id));
 
     return { ok: true, message: "Password changed successfully" };
   } catch (err) {

@@ -1,31 +1,30 @@
+import { getImages } from "@/app/__actions/files/get-images";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { image } from "@prisma/client";
-import Image from "next/image";
-import { useState } from "react";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useQuery } from "@tanstack/react-query";
-import { getImages } from "@/app/__actions/files/get-images";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { image } from "@/db/schemas/image";
+import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 type props = {
   setClose?: (value: boolean) => void;
-  setImage?: (data: image) => void;
+  setImage?: (data: typeof image.$inferSelect) => void;
   open?: boolean;
 };
 
 export default function SelectImageForm({ setClose, setImage, open }: props) {
-  const [selectedImage, setSelectedImage] = useState<image>();
+  const [selectedImage, setSelectedImage] =
+    useState<typeof image.$inferSelect>();
 
   const { data: images, isLoading } = useQuery({
     queryKey: ["images"],
@@ -34,7 +33,7 @@ export default function SelectImageForm({ setClose, setImage, open }: props) {
     },
   });
 
-  const form = useForm<image>({
+  const form = useForm<typeof image.$inferSelect>({
     defaultValues: selectedImage,
   });
 

@@ -1,10 +1,12 @@
 "use server";
 import { PostFormType, PostSchema } from "@/app/__schema/post/PostSchema";
-import { db } from "@/lib/db";
-import { getAuthUser, isAuthorised } from "@/lib/getAuthUser";
-import { returnError } from "../utils/return-error";
+import db from "@/db";
+import { blogPost, blogsToCategory } from "@/db/schemas/blog-post";
+import { image } from "@/db/schemas/image";
+import { isAuthorised } from "@/lib/getAuthUser";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { image } from "@prisma/client";
+import { returnError } from "../utils/return-error";
 
 /**
  *
@@ -27,7 +29,9 @@ export const createPost = async (data: PostFormType) => {
       "manager",
     ]);
 
-    if (!AuthUser) {
+    console.log("AuthUser", AuthUser);
+
+    if (!AuthUser?.id) {
       throw new Error(message);
     }
 
@@ -47,40 +51,46 @@ export const createPost = async (data: PostFormType) => {
       category,
     } = parsedData.data;
 
-    let existingFeatureImage: image | null = null;
+    let existingFeatureImage: typeof image.$inferSelect | undefined;
 
     if (featureImage) {
-      existingFeatureImage = await db.image.findUnique({
-        where: {
-          id: featureImage,
-        },
+      existingFeatureImage = await db.query.image.findFirst({
+        where: eq(image.id, featureImage),
       });
       if (!existingFeatureImage) {
         throw new Error("Feature image not found");
       }
     }
 
-    console.log("featureImage : ", featureImage);
+    const newPost = await db.transaction(async (trx) => {
+      // Insert the blog post
+      const [newPost] = await trx
+        .insert(blogPost)
+        .values({
+          title: title,
+          content: content,
+          keywords: keywords,
+          description: description,
+          imageId: featureImage || null,
+          slug: slug,
+          userId: AuthUser.id as string,
+        })
+        .returning();
 
-    const newPost = await db.blogPost.create({
-      data: {
-        title,
-        content,
-        keywords,
-        description,
-        slug,
-        featuredImage: featureImage
-          ? { connect: { id: featureImage } }
-          : undefined,
-        author: {
-          connect: {
-            id: AuthUser.id,
-          },
-        },
-        category: category && {
-          connect: category ? category?.map((cat) => ({ id: cat })) : undefined,
-        },
-      },
+      if (!newPost) {
+        throw new Error("Failed to insert blog post");
+      }
+
+      // Insert the categories
+      if (category?.length) {
+        await trx.insert(blogsToCategory).values(
+          category.map((catId) => ({
+            postId: newPost.id, // Use the ID of the inserted post
+            categoryId: catId,
+          }))
+        );
+      }
+      return newPost;
     });
 
     revalidatePath("/", "layout");

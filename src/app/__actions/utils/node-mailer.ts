@@ -1,6 +1,6 @@
 "use server";
 import { envVariables } from "@/app/__constants/env-variables";
-import { User } from "@prisma/client";
+import { user as User } from "@/db/schemas/user";
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
@@ -22,7 +22,7 @@ type verifyMailType = {
 };
 
 export const userVerificationMail = async (
-  user: verifyMailType | User,
+  user: verifyMailType | typeof User.$inferSelect,
   token: string
 ) => {
   if (!user.isVerified)
@@ -45,7 +45,7 @@ export const userVerificationMail = async (
     }
 };
 export const passwordResetMail = async (
-  user: verifyMailType | User,
+  user: verifyMailType | typeof User.$inferSelect,
   token: string
 ) => {
   try {

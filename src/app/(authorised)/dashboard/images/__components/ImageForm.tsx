@@ -1,6 +1,6 @@
 "use client";
 
-import { image } from "@prisma/client";
+import { image } from "@/db/schemas/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -27,10 +27,10 @@ import { updateImage } from "@/app/__actions/files/update-image";
 import * as z from "zod";
 
 const ImageForm: React.FC<{
-  imageData?: image;
+  imageData?: typeof image.$inferSelect;
   option: "update" | "create";
   setClose?: (value: boolean) => void;
-  setImage?: (data: image) => void;
+  setImage?: (data: typeof image.$inferSelect) => void;
   open?: boolean;
 }> = ({ imageData, option, setClose, setImage }) => {
   const schema = option === "update" ? ImageUpdateSchema : ImageUploadSchema;
@@ -75,7 +75,9 @@ const ImageForm: React.FC<{
       if (res.image) {
         if (setImage) {
           setImage(res.image);
-          if (setClose) {setClose(!open);}
+          if (setClose) {
+            setClose(!open);
+          }
         }
       }
     } else {

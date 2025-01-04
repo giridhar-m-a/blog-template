@@ -1,9 +1,11 @@
 "use server";
 
-import { db } from "@/lib/db";
+import db from "@/db";
 import { isAuthorised } from "@/lib/getAuthUser";
 import { revalidatePath } from "next/cache";
 import { returnError } from "../utils/return-error";
+import { eq } from "drizzle-orm";
+import { blogPost } from "@/db/schemas/blog-post";
 
 export const publishUnPublishPost = async (
   id: number
@@ -19,28 +21,22 @@ export const publishUnPublishPost = async (
       throw new Error(message);
     }
 
-    const existingPost = await db.blogPost.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        featuredImage: true,
-      },
+    const existingPost = await db.query.blogPost.findFirst({
+      where: eq(blogPost.id, id),
     });
 
     if (!existingPost) {
       throw new Error("Post not found");
     }
 
-    const post = await db.blogPost.update({
-      where: {
-        id,
-      },
-      data: {
+    const [post] = await db
+      .update(blogPost)
+      .set({
         isPublished: !existingPost.isPublished,
-      },
-    });
-
+      })
+      .where(eq(blogPost.id, id))
+      .returning();
+    revalidatePath("/", "layout");
     if (post) {
       return {
         ok: true,
@@ -48,7 +44,6 @@ export const publishUnPublishPost = async (
           post.isPublished ? "published" : "unpublished"
         } successfully`,
       };
-      revalidatePath("/", "layout");
     }
 
     return {

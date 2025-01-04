@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { YoutubeVideo } from "@prisma/client";
+import { youtubeVideo as YoutubeVideo } from "@/db/schemas/youtube-video";
 import { useForm } from "react-hook-form";
 import {
   YouTubeVideoSchema,
@@ -24,9 +24,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 const VideoForm: React.FC<{
-  videoData?: YoutubeVideo;
+  videoData?: typeof YoutubeVideo.$inferSelect;
   option: "update" | "create" | "noUpload";
-  onSubmit?: (video: YoutubeVideo) => void;
+  onSubmit?: (video: typeof YoutubeVideo.$inferSelect) => void;
   setOpen?: (open: boolean) => void;
   open?: boolean;
 }> = ({ videoData, option, onSubmit, setOpen, open }) => {

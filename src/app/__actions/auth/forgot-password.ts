@@ -8,7 +8,8 @@ import { returnError } from "../utils/return-error";
 import { getUserByEmail } from "../utils/users";
 import { generateToken } from "../utils/jwt-token";
 import { passwordResetMail } from "../utils/node-mailer";
-import { db } from "@/lib/db";
+import db from "@/db";
+import { token } from "@/db/schemas/token";
 
 export const sendForgetToken = async (data: ForgotPasswordType) => {
   try {
@@ -23,22 +24,20 @@ export const sendForgetToken = async (data: ForgotPasswordType) => {
       throw new Error("User not found");
     }
 
-    const token = await generateToken(existingUser);
+    const generatedToken = await generateToken(existingUser);
 
-    const dbToken = await db.token.create({
-      data: {
+    const dbToken = await db
+      .insert(token)
+      .values({
         email: existingUser.email,
-        token,
-      },
-    });
-
-    if (!dbToken) {
+        token: generatedToken,
+        purpose: "forgetPassword",
+      })
+      .returning();
+    if (dbToken.length < 1) {
       throw new Error("Token Not Created");
     }
-
-    console.log("token:", token);
-
-    const isMailSend = await passwordResetMail(existingUser, token);
+    const isMailSend = await passwordResetMail(existingUser, generatedToken);
 
     if (!isMailSend?.ok) {
       throw new Error("Mail Not Sent");

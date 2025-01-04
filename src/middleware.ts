@@ -14,6 +14,8 @@ export default auth((req) => {
   }
 });
 
+// export { auth as middleware } from "@/auth";
+
 export const config = {
   matcher: [
     // Skip Next.js internals and all static files, unless found in search params

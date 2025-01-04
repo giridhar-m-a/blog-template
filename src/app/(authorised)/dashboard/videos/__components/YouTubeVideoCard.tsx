@@ -4,7 +4,7 @@ import YouTubeVideoPlayer from "@/app/__components/Video/YouTubePlayer";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 import VideoForm from "./VideoForm";
-import { YoutubeVideo } from "@prisma/client";
+import { youtubeVideo } from "@/db/schemas/youtube-video";
 import DeleteVideoButton from "./DeleteVideoButton";
 import { useState } from "react";
 
@@ -17,7 +17,9 @@ const TriggerButton = (
   </Button>
 );
 
-const YouTubeVideoCard: React.FC<{ video: YoutubeVideo }> = ({ video }) => {
+const YouTubeVideoCard: React.FC<{
+  video: typeof youtubeVideo.$inferSelect;
+}> = ({ video }) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative w-full basis-1/4 flex-shrink flex-auto aspect-video overflow-hidden">

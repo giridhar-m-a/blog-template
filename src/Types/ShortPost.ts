@@ -11,7 +11,7 @@ export type ShortPost = {
   description: string;
   slug: string;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
   isPublished: boolean;
   featuredImage: {
     url: string;

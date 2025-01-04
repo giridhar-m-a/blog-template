@@ -2,10 +2,13 @@
 
 import { createPost } from "@/app/__actions/posts/create-post";
 import { PostById } from "@/app/__actions/posts/get-single-post-by-id";
+import { publishUnPublishPost } from "@/app/__actions/posts/publish-unPublishPost";
+import { updatePost } from "@/app/__actions/posts/update-post";
 import { verifySlug } from "@/app/__actions/posts/verify-slug";
 import TipTapEditor from "@/app/__components/TitTap/TipTapEditor";
 import { PostSchema, type PostFormType } from "@/app/__schema/post/PostSchema";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -15,34 +18,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { blogPost } from "@/db/schemas/blog-post";
+import { blogPostCategory } from "@/db/schemas/blog-post-category";
+import { image } from "@/db/schemas/image";
 import { useToast } from "@/hooks/use-toast";
 import getSlug from "@/lib/getSlug";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BlogPost, image, PostCategory } from "@prisma/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, CircleX, ImageIcon, Save } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import ImageSelector from "../../images/__components/image-selector/ImageSelector";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { updatePost } from "@/app/__actions/posts/update-post";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { publishUnPublishPost } from "@/app/__actions/posts/publish-unPublishPost";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
   data?: PostById;
-  categories: PostCategory[];
+  categories: (typeof blogPostCategory.$inferSelect)[];
   option: "update" | "create";
 };
 
@@ -92,7 +93,9 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
     }
   };
 
-  const [featureImage, setFeatureImage] = useState<image | null>(null);
+  const [featureImage, setFeatureImage] = useState<
+    typeof image.$inferSelect | null
+  >(null);
 
   const { toast } = useToast();
 
@@ -124,7 +127,7 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
     let res: {
       ok: boolean;
       message: string;
-      data?: BlogPost;
+      data?: typeof blogPost.$inferSelect;
     } | null = null;
 
     if (currentOption === "create") {
@@ -187,7 +190,7 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
     }
   };
 
-  const onImageSelect = (ImageData: image) => {
+  const onImageSelect = (ImageData: typeof image.$inferSelect) => {
     form.setValue("featureImage", ImageData.id);
     setFeatureImage(ImageData);
   };
@@ -498,7 +501,7 @@ const PostForm: React.FC<Props> = ({ data, option, categories }) => {
                                     )}
                                   />
                                   <Label htmlFor={`${category.id}`}>
-                                    {category.name}
+                                    {category.title}
                                   </Label>
                                 </div>
                               ))}

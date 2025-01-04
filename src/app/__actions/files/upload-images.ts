@@ -2,8 +2,9 @@
 
 import { ImageUploadSchema } from "@/app/(authorised)/dashboard/images/__schema/ImageUploadSchema";
 import imageUploader from "../utils/imageUploader";
-import { db } from "@/lib/db";
+import db from "@/db";
 import { revalidatePath } from "next/cache";
+import { image as imageSchema } from "@/db/schemas/image";
 
 export const uploadImage = async (data: FormData) => {
   try {
@@ -37,16 +38,17 @@ export const uploadImage = async (data: FormData) => {
     }
     const { secure_url: url, public_id, width, height } = imageData;
 
-    const newImage = await db.image.create({
-      data: {
-        url,
+    const [newImage] = await db
+      .insert(imageSchema)
+      .values({
+        url: url,
         publicId: public_id,
-        altText,
-        width,
-        height,
         fileName: image[0].name,
-      },
-    });
+        altText: altText,
+        width: width,
+        height: height,
+      })
+      .returning();
 
     revalidatePath("/", "layout");
     return {

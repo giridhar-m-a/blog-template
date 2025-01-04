@@ -1,14 +1,14 @@
 "use server";
 
-import { db } from "@/lib/db";
+import db from "@/db";
 import { returnError } from "../utils/return-error";
+import { eq } from "drizzle-orm";
+import { blogPost } from "@/db/schemas/blog-post";
 
 export const verifySlug = async (slug: string) => {
   try {
-    const post = await db.blogPost.findFirst({
-      where: {
-        slug,
-      },
+    const post = await db.query.blogPost.findFirst({
+      where: eq(blogPost.slug, slug),
     });
 
     if (post) {

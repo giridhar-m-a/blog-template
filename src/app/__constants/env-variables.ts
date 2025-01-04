@@ -1,5 +1,4 @@
 export const envVariables: envVariables = {
-  db: process.env.DATABASE_URL,
   authSecret: process.env.AUTH_SECRET,
   cloudinaryName: process.env.CLOUDINARY_NAME,
   cloudinarySecret: process.env.CLOUDINARY_SECRET,
@@ -16,7 +15,6 @@ export const envVariables: envVariables = {
 };
 
 type envVariables = {
-  db: string | undefined;
   authSecret: string | undefined;
   cloudinaryName: string | undefined;
   cloudinarySecret: string | undefined;

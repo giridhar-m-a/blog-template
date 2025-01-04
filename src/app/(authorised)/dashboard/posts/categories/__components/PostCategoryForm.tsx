@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { blogPostCategory } from "@/db/schemas/blog-post-category";
 import { toast } from "@/hooks/use-toast";
 import getSlug from "@/lib/getSlug";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PostCategory } from "@prisma/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
 
@@ -27,7 +27,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
 type Props = {
-  data?: PostCategory;
+  data?: typeof blogPostCategory.$inferSelect;
   option: "update" | "create";
   setOpen: (open: boolean) => void;
   open: boolean;
@@ -43,7 +43,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
   const form = useForm<PostCategoryFormType>({
     resolver: zodResolver(PostCategorySchema),
     defaultValues: {
-      name: data?.name || "",
+      title: data?.title || "",
       slug: data?.slug || "",
       description: data?.description || "",
     },
@@ -55,7 +55,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
     onSuccess: (data: {
       ok: boolean;
       message: string;
-      data?: PostCategory;
+      data?: typeof blogPostCategory.$inferSelect;
     }) => {
       if (data) {
         if (data.ok) {
@@ -65,7 +65,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
           queryClient.invalidateQueries({
             queryKey: ["getAllPostCategories"],
           });
-          setOpen(!open);
+          setInterval(() => setOpen(!open), 3000);
         } else {
           toast({
             variant: "destructive",
@@ -82,7 +82,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
     onSuccess: (data: {
       ok: boolean;
       message: string;
-      data?: PostCategory;
+      data?: typeof blogPostCategory.$inferSelect;
     }) => {
       if (data) {
         if (data.ok) {
@@ -92,7 +92,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
           queryClient.invalidateQueries({
             queryKey: ["getAllPostCategories"],
           });
-          setOpen(!open);
+          setInterval(() => setOpen(!open), 3000);
         } else {
           toast({
             variant: "destructive",
@@ -105,7 +105,6 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
 
   const {
     handleSubmit,
-    reset,
     formState: { isSubmitting },
   } = form;
 
@@ -131,7 +130,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
   const onTitleChange = async (title: string) => {
     const slug = getSlug(title);
 
-    form.setValue("name", title);
+    form.setValue("title", title);
 
     form.setValue("slug", slug);
 
@@ -165,7 +164,7 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
           <FormField
             disabled={isSubmitting}
             control={form.control}
-            name="name"
+            name="title"
             render={({ field }) => (
               <FormItem>
                 <FormLabel htmlFor="name">Name</FormLabel>
@@ -240,7 +239,9 @@ const PostCategoryForm: React.FC<Props> = ({ data, option, setOpen, open }) => {
           <Button
             type="submit"
             disabled={
-              isSubmitting || isSlugAvailable === "notAvailable" ? true : false
+              isSlugAvailable === "notAvailable"
+                ? true
+                : false || isSubmitting || createPending || updatePending
             }
           >
             submit

@@ -3,7 +3,7 @@ import PopOver from "@/app/(authorised)/__components/PopOver";
 import ImageDeleteButton from "@/app/(authorised)/dashboard/images/__components/ImageDeleteButton";
 import ImageForm from "@/app/(authorised)/dashboard/images/__components/ImageForm";
 import { Button } from "@/components/ui/button";
-import { image } from "@prisma/client";
+import { image as ImageType } from "@/db/schemas/image";
 import { Edit } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -17,7 +17,7 @@ const TriggerButton = (
   </Button>
 );
 
-const ImageCard = ({ image }: { image: image }) => {
+const ImageCard = ({ image }: { image: typeof ImageType.$inferSelect }) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative w-full basis-1/4 flex-shrink flex-auto aspect-video overflow-hidden rounded-md p-1">

@@ -1,22 +1,12 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Blockquote from "@tiptap/extension-blockquote";
-import Bold from "@tiptap/extension-bold";
 import CodeBlock from "@tiptap/extension-code-block";
-import Heading, { HeadingOptions } from "@tiptap/extension-heading";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import ListItem from "@tiptap/extension-list-item";
-import OrderedList from "@tiptap/extension-ordered-list";
-import TextAlign from "@tiptap/extension-text-align";
-import Underline from "@tiptap/extension-underline";
-import Youtube from "@tiptap/extension-youtube";
-import { EditorContent, ReactNodeViewRenderer, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TipTapToolBar from "./TipTapToolBar";
+import { HeadingOptions } from "@tiptap/extension-heading";
+import { EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import CodeBlockComponent from "./CodeBlockComponent";
-import getEditor from "./editor";
+import GetEditor from "./editor";
+import TipTapToolBar from "./TipTapToolBar";
 
 const CustomCodeBlock = CodeBlock.extend({
   addNodeView() {
@@ -45,7 +35,7 @@ const TipTapEditor: React.FC<props> = ({
   const onChange = (content: string) => {
     setContent(content);
   };
-  const editor = getEditor(true, onChange, content);
+  const editor = GetEditor(true, onChange, content);
 
   return (
     <>

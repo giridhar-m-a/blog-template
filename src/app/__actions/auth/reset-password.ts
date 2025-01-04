@@ -5,9 +5,12 @@ import { JWTExpired } from "jose/errors";
 import { veryfyToken } from "../utils/jwt-token";
 import { returnError } from "../utils/return-error";
 import { getUserByEmail } from "../utils/users";
-import { db } from "@/lib/db";
+import db from "@/db";
 import { BcryptProvider } from "@/lib/Bcrypt.provider";
 import { ResetPasswordType } from "@/app/__schema/auth/ResetPasswordSchema";
+import { eq } from "drizzle-orm";
+import { token as tokenSchema } from "@/db/schemas/token";
+import { user } from "@/db/schemas/user";
 
 const hash = new BcryptProvider();
 
@@ -32,14 +35,15 @@ export const resetPassword = async ({
       throw new Error("User not found");
     }
 
-    const existingToken = await db.token.findUnique({
-      where: {
-        token: token,
-        email: email,
-      },
+    const existingToken = await db.query.token.findFirst({
+      where: eq(tokenSchema.email, email) && eq(tokenSchema.token, token),
     });
 
     if (!existingToken) {
+      throw new Error("Invalid Token");
+    }
+
+    if (existingToken.purpose !== "forgetPassword") {
       throw new Error("Invalid Token");
     }
 
@@ -49,24 +53,12 @@ export const resetPassword = async ({
 
     const hashedPassword = await hash.hash(password);
 
-    const user = await db.user.update({
-      where: {
-        email: email,
-      },
-      data: {
-        password: hashedPassword,
-        isVerified: true,
-      },
-    });
-
-    if (!user) {
-      throw new Error("User Not Updated");
-    }
-
-    await db.token.delete({
-      where: {
-        email: email,
-      },
+    await db.transaction(async (tx) => {
+      await tx
+        .update(user)
+        .set({ password: hashedPassword, isVerified: true })
+        .where(eq(user.id, existingUser.id));
+      await tx.delete(tokenSchema).where(eq(tokenSchema.email, email));
     });
 
     return {

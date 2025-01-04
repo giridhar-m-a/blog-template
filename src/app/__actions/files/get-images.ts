@@ -1,10 +1,10 @@
 "use server";
 
-import { db } from "@/lib/db";
+import db from "@/db";
 
 export const getImages = async () => {
   try {
-    const images = await db.image.findMany();
+    const images = await db.query.image.findMany();
     return images;
   } catch (err) {
     console.log(err);

@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
-import { image, YoutubeVideo } from "@prisma/client";
+import { image as ImageType } from "@/db/schemas/image";
+import { youtubeVideo as YoutubeVideo } from "@/db/schemas/youtube-video";
 import { SelectItem } from "@radix-ui/react-select";
 import { Editor, JSONContent } from "@tiptap/react";
 import {
@@ -105,14 +106,14 @@ const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
     return null;
   }
 
-  const addYoutubeVideo = (data: YoutubeVideo) => {
+  const addYoutubeVideo = (data: typeof YoutubeVideo.$inferSelect) => {
     if (data) {
       editor.commands.setYoutubeVideo({
         src: data.url,
       });
     }
   };
-  const addImage = (image: image) => {
+  const addImage = (image: typeof ImageType.$inferSelect) => {
     editor.commands.setImage({
       src: image.url,
     });

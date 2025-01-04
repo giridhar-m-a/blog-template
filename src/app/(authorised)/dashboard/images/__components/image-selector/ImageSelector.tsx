@@ -3,12 +3,12 @@
 import PopOver from "@/app/(authorised)/__components/PopOver";
 import { ReactNode, useState } from "react";
 import ImageForm from "../ImageForm";
-import { image } from "@prisma/client";
+import {image as imageSchema } from "@/db/schemas/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SelectImageForm from "@/app/__components/images/SelectImageForm";
 
 type props = {
-  setImage?: (image: image) => void;
+  setImage?: (image: typeof imageSchema.$inferSelect) => void;
   trigger: ReactNode;
 };
 

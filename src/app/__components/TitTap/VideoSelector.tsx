@@ -2,11 +2,11 @@
 
 import PopOver from "@/app/(authorised)/__components/PopOver";
 import VideoForm from "@/app/(authorised)/dashboard/videos/__components/VideoForm";
-import { YoutubeVideo } from "@prisma/client";
+import { youtubeVideo as YoutubeVideo } from "@/db/schemas/youtube-video";
 import { ReactNode, useState } from "react";
 
 type props = {
-  setVideo: (data: YoutubeVideo) => void;
+  setVideo: (data: typeof YoutubeVideo.$inferSelect) => void;
   trigger: ReactNode;
 };
 

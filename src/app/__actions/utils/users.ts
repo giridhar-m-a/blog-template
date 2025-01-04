@@ -1,18 +1,17 @@
 "use server";
 
-import { db } from "@/lib/db";
+import db from "@/db";
+import { user } from "@/db/schemas/user";
+import { User } from "@/Types/db-types";
+import { eq } from "drizzle-orm";
 
-export const getUserById = async (id: string) => {
+export const getUserById = async (id: User["id"]) => {
   try {
-    const user = await db.user.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        avatar: true,
-      },
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.id, id),
+      with: { avatar: true },
     });
-    return user;
+    return existingUser;
   } catch (err) {
     console.log(err);
     return null;
@@ -21,12 +20,10 @@ export const getUserById = async (id: string) => {
 
 export const getUserByEmail = async (email: string) => {
   try {
-    const user = await db.user.findUnique({
-      where: {
-        email,
-      },
+    const existingUser = await db.query.user.findFirst({
+      where: eq(user.email, email),
     });
-    return user;
+    return existingUser;
   } catch (err) {
     console.log(err);
     return null;

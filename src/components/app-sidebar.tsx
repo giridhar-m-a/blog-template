@@ -3,10 +3,10 @@ import {
   Folder,
   GalleryVerticalEnd,
   Image,
-  Video,
-  StickyNote,
-  ScrollText,
   Layers3,
+  ScrollText,
+  StickyNote,
+  Video,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import * as React from "react";
@@ -23,10 +23,9 @@ import {
 } from "@/components/ui/sidebar";
 import { SidebarMenuItemType } from "@/Types/SidebarMenu";
 import { AdminMenu } from "./menu-list/admin";
-import { SuperAdminMenu } from "./menu-list/super-admin";
 import { ManagerMenu } from "./menu-list/manager";
 import { SeoMenu } from "./menu-list/seo";
-import { Role } from "@prisma/client";
+import { SuperAdminMenu } from "./menu-list/super-admin";
 
 // This is sample data.
 const data = {
@@ -81,13 +80,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   React.useEffect(() => {
     if (user) {
-      if (user.role === Role.Super_Admin) {
+      if (user.role === "Super_Admin") {
         setMenu(SuperAdminMenu);
-      } else if (user.role === Role.admin) {
+      } else if (user.role === "admin") {
         setMenu(AdminMenu);
-      } else if (user.role === Role.manager) {
+      } else if (user.role === "manager") {
         setMenu(ManagerMenu);
-      } else if (user.role === Role.seo) {
+      } else if (user.role === "seo") {
         setMenu(SeoMenu);
       }
     }

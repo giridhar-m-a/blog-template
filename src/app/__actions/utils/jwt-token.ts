@@ -1,5 +1,5 @@
 import { envVariables } from "@/app/__constants/env-variables";
-import { User } from "@prisma/client";
+import { user as User } from "@/db/schemas/user";
 import { SignJWT, jwtVerify } from "jose";
 
 const key = new TextEncoder().encode(envVariables.authSecret);
@@ -11,7 +11,9 @@ type jwtPayload = {
   isVerified: boolean;
   createdAt: Date;
 };
-export const generateToken = async (user: jwtPayload | User) => {
+export const generateToken = async (
+  user: jwtPayload | typeof User.$inferSelect
+) => {
   return await new SignJWT({
     id: user.id,
     email: user.email,

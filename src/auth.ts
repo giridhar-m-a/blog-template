@@ -1,9 +1,9 @@
+import { getUserById } from "@/app/__actions/utils/users";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import NextAuth, { type DefaultSession } from "next-auth";
 import authConfig from "./auth.config";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { db as prisma } from "./lib/db";
-import { getUserById } from "@/app/__actions/utils/users";
-import { Role } from "@prisma/client";
+import db from "./db";
+import { Role, User } from "./Types/db-types";
 
 export type ExtendedUser = DefaultSession["user"] & {
   role: Role;
@@ -61,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (!token?.sub) return token;
 
-      const existingUser = await getUserById(token.sub as string);
+      const existingUser = await getUserById(token.sub as User["id"]);
 
       if (!existingUser) return token;
 
@@ -71,7 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
   },
-  adapter: PrismaAdapter(prisma),
+  adapter: DrizzleAdapter(db),
   session: { strategy: "jwt" },
   ...authConfig,
   pages: {

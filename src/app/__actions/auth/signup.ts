@@ -1,8 +1,11 @@
 "use server";
 
 import { RegisterSchemaType } from "@/app/__schema/auth/RegisterSchema";
+import db from "@/db";
+import { token } from "@/db/schemas/token";
+import { user as users } from "@/db/schemas/user";
 import { BcryptProvider } from "@/lib/Bcrypt.provider";
-import { db } from "@/lib/db";
+import { eq } from "drizzle-orm";
 import { generateToken } from "../utils/jwt-token";
 import { userVerificationMail } from "../utils/node-mailer";
 import { returnError } from "../utils/return-error";
@@ -11,10 +14,8 @@ const hashingProvider = new BcryptProvider();
 
 export const Register = async (data: RegisterSchemaType) => {
   try {
-    const existingUser = await db.user.findUnique({
-      where: {
-        email: data.email,
-      },
+    const existingUser = await db.query.user.findFirst({
+      where: eq(users.email, data.email),
     });
 
     if (existingUser) {
@@ -25,31 +26,30 @@ export const Register = async (data: RegisterSchemaType) => {
 
     // console.log("password:", password);
 
-    const user = await db.$transaction(async (tx) => {
-      const newUser = await tx.user.create({
-        data: {
-          ...data,
-          password: password,
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          password: false,
-          createdAt: true,
-          isVerified: true,
-        },
+    const user = await db.transaction(async (tx) => {
+      await tx.insert(users).values({
+        ...data,
+        password: password,
       });
 
-      const token = await generateToken(newUser);
-      await tx.token.create({
-        data: {
-          email: newUser.email,
-          token: token,
-        },
+      const user = await tx.query.user.findFirst({
+        where: eq(users.email, data.email),
       });
 
-      return { newUser, token };
+      if (!user) {
+        throw new Error("User not created");
+      }
+
+      const generatedToken = await generateToken(user);
+
+      const tokenValues: typeof token.$inferInsert = {
+        email: user.email,
+        token: generatedToken,
+      };
+
+      await tx.insert(token).values(tokenValues);
+
+      return { newUser: user, token: generatedToken };
     });
 
     if (!user) {

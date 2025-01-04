@@ -1,34 +1,31 @@
 "use server";
-import { db } from "@/lib/db";
-import { User } from "@prisma/client";
+import db from "@/db";
 import { returnError } from "../utils/return-error";
 import { userVerificationMail } from "../utils/node-mailer";
 import { generateToken } from "../utils/jwt-token";
+import { User } from "@/Types/db-types";
+import { eq } from "drizzle-orm";
+import { token } from "@/db/schemas/token";
 
 export const sendRenewedVerificationToken = async (user: User) => {
   try {
     const renewedToken = await generateToken(user);
 
-    const existingToken = await db.token.findUnique({
-      where: {
-        email: user.email,
-      },
+    const existingToken = await db.query.token.findFirst({
+      where: eq(token.email, user.email),
     });
 
     if (!existingToken) {
       throw new Error("No Token Found");
     }
 
-    const newToken = await db.token.update({
-      where: {
-        email: user.email,
-      },
-      data: {
-        token: renewedToken,
-      },
-    });
+    const newToken = await db
+      .update(token)
+      .set({ token: renewedToken })
+      .returning()
+      .where(eq(token.email, user.email));
 
-    if (newToken.token !== renewedToken) {
+    if (newToken[0].token !== renewedToken) {
       throw new Error("Token Not Updated");
     }
 
