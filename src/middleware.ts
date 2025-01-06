@@ -1,9 +1,9 @@
-import authConfig from "./auth.config";
 import NextAuth from "next-auth";
+import authConfig from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl } = req;
   const isLoggedin = !!req.auth;
 
@@ -13,8 +13,6 @@ export default auth((req) => {
     }
   }
 });
-
-// export { auth as middleware } from "@/auth";
 
 export const config = {
   matcher: [

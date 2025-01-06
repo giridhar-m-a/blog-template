@@ -22,9 +22,6 @@ const CustomCodeBlock = CodeBlock.extend({
 
 const headingConfig: Partial<HeadingOptions> = {
   levels: [1, 2, 3, 4, 5, 6],
-  HTMLAttributes: {
-    class: "text-2xl font-bold",
-  },
 };
 export default function GetEditor(
   isEditable: boolean,
@@ -35,7 +32,7 @@ export default function GetEditor(
     extensions: [
       Bold.configure({
         HTMLAttributes: {
-          class: "text-xl font-bold",
+          class: "font-bold",
         },
       }),
       StarterKit.configure({
@@ -56,7 +53,7 @@ export default function GetEditor(
       }),
       OrderedList.configure({
         HTMLAttributes: {
-          class: "list-decimal ml-4",
+          class: "!list-decimal ml-4",
         },
       }),
       Underline,
@@ -90,7 +87,8 @@ export default function GetEditor(
     content: content || "",
     editorProps: {
       attributes: {
-        class: "min-h-screen p-8 max-w-screen overflow-none border-accent",
+        class:
+          "min-h-screen p-8 max-w-screen overflow-none border-accent rich-text",
       },
     },
     editable: isEditable,

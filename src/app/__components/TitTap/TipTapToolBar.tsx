@@ -31,7 +31,7 @@ import {
   TvMinimalPlay,
   Underline,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import VideoSelector from "./VideoSelector";
 
 type Props = {
@@ -41,8 +41,6 @@ type Props = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
-  console.log(content);
-  const [headingLevel, setHeadingLevel] = useState<string>("p");
   const setLink = useCallback(() => {
     if (!editor) return;
 
@@ -64,47 +62,21 @@ const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
     // update link
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
-  useEffect(() => {
-    const updateHeadingLevel = () => {
-      if (!editor) return;
-
-      if (editor.isActive("paragraph")) {
-        setHeadingLevel("p");
-      } else {
-        for (let i = 1; i <= 6; i++) {
-          if (editor.isActive("heading", { level: i })) {
-            setHeadingLevel(i.toString());
-            return;
-          }
-        }
-      }
-    };
-
-    editor?.on("selectionUpdate", updateHeadingLevel);
-    editor?.on("update", updateHeadingLevel);
-
-    return () => {
-      editor?.off("selectionUpdate", updateHeadingLevel);
-      editor?.off("update", updateHeadingLevel);
-    };
-  }, [editor]);
-
-  const setHeading = (value: string) => {
-    if (value === "p") {
-      editor?.chain().focus().setParagraph().run();
-    } else {
-      editor
-        ?.chain()
-        .focus()
-        .toggleHeading({ level: parseInt(value) as 1 | 2 | 3 | 4 | 5 | 6 })
-        .run();
-    }
-    setHeadingLevel(value);
-  };
-
   if (!editor) {
     return null;
   }
+
+  const setHeading = (value: "1" | "2" | "3" | "4" | "5" | "6" | "p") => {
+    if (value === "p") {
+      editor.chain().focus().setParagraph().run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .toggleHeading({ level: Number(value) as 1 | 2 | 3 | 4 | 5 | 6 })
+        .run();
+    }
+  };
 
   const addYoutubeVideo = (data: typeof YoutubeVideo.$inferSelect) => {
     if (data) {
@@ -122,10 +94,40 @@ const TipTapToolBar: React.FC<Props> = ({ editor, content }) => {
   return (
     <div className="flex flex-wrap gap-2 justify-start items-center w-full">
       <>
-        <Select onValueChange={setHeading} value={`${headingLevel}`}>
+        <Select
+          onValueChange={setHeading}
+          defaultValue={"p"}
+          value={
+            editor.isActive("heading", { level: 1 })
+              ? "1"
+              : editor.isActive("heading", { level: 2 })
+              ? "2"
+              : editor.isActive("heading", { level: 3 })
+              ? "3"
+              : editor.isActive("heading", { level: 4 })
+              ? "4"
+              : editor.isActive("heading", { level: 5 })
+              ? "5"
+              : editor.isActive("heading", { level: 6 })
+              ? "6"
+              : "p"
+          }
+        >
           <SelectTrigger className="w-fit">
             <SelectValue>
-              {headingLevel === "p" ? "Paragraph" : `Heading ${headingLevel}`}
+              {editor.isActive("heading", { level: 1 })
+                ? "Heading 1"
+                : editor.isActive("heading", { level: 2 })
+                ? "Heading 2"
+                : editor.isActive("heading", { level: 3 })
+                ? "Heading 3"
+                : editor.isActive("heading", { level: 4 })
+                ? "Heading 4"
+                : editor.isActive("heading", { level: 5 })
+                ? "Heading 5"
+                : editor.isActive("heading", { level: 6 })
+                ? "Heading 6"
+                : "Paragraph"}
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="w-fit">

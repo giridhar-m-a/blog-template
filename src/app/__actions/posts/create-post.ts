@@ -29,8 +29,6 @@ export const createPost = async (data: PostFormType) => {
       "manager",
     ]);
 
-    console.log("AuthUser", AuthUser);
-
     if (!AuthUser?.id) {
       throw new Error(message);
     }

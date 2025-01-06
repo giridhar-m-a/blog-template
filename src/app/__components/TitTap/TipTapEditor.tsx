@@ -23,7 +23,12 @@ type props = {
 const headingConfig: Partial<HeadingOptions> = {
   levels: [1, 2, 3, 4, 5, 6],
   HTMLAttributes: {
-    class: "text-2xl font-bold",
+    1: {
+      class: "text-2xl font-bold",
+    },
+    2: {
+      class: "text-2xl",
+    },
   },
 };
 

@@ -6,7 +6,6 @@ import PostTable from "./__components/PostTable";
 
 export default async function Posts() {
   const posts = await getAllPosts(true);
-
   return (
     <div>
       <div className="flex w-full gap-4">

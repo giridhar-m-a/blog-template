@@ -7,8 +7,10 @@ const main = async () => {
       migrationsFolder: "./src/db/migrations",
     });
     console.log("Migration complete");
+    process.exit(0);
   } catch (e) {
     console.error(e);
+    process.exit(0);
   }
 };
 

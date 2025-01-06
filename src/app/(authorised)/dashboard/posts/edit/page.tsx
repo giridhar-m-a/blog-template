@@ -7,7 +7,6 @@ type Props = {
 
 export default async function NewPost({ searchParams }: Props) {
   const { id } = await searchParams;
-  console.log("id in page : ", id);
   if (!id) {
     return (
       <main>

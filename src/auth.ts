@@ -4,6 +4,7 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import authConfig from "./auth.config";
 import db from "./db";
 import { Role, User } from "./Types/db-types";
+import { getAuthUser } from "./lib/getAuthUser";
 
 export type ExtendedUser = DefaultSession["user"] & {
   role: Role;
@@ -21,8 +22,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // async redirect({ url, baseUrl }) {
     //   console.log("url: ", url, "baseUrl: ", baseUrl);
     //   // Handle redirect URLs
+    //   const user = await getAuthUser();
     //   if (url.startsWith("/")) {
     //     return `${baseUrl}${url}`;
+    //   } else if (url.startsWith("/dashboard") && user && user.role === "user") {
+    //     return `${baseUrl}/dashboard`;
     //   } else if (new URL(url).origin === baseUrl) {
     //     return url;
     //   }

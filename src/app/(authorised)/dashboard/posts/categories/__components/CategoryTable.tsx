@@ -12,7 +12,7 @@ type props = {
 };
 
 const PostcategoryTable: React.FC<props> = ({ data }) => {
-  const { data: posts } = useQuery({
+  const { data: categories } = useQuery({
     queryKey: ["getAllPostCategories"],
     initialData: data,
     queryFn: async () => {
@@ -20,9 +20,13 @@ const PostcategoryTable: React.FC<props> = ({ data }) => {
     },
   });
 
-  console.log("post category", posts);
-
-  return <DataTable columns={PostCategoryColumn} data={posts || []} isPaginated />;
+  return (
+    <DataTable
+      columns={PostCategoryColumn}
+      data={categories || []}
+      isPaginated
+    />
+  );
 };
 
 export default PostcategoryTable;

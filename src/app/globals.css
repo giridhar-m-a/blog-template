@@ -105,11 +105,15 @@ body {
     @apply lg:text-lg font-semibold;
   }
   .rich-text a {
-    @apply hover:text-primary/80;
+    @apply hover:text-primary/80 text-accent/50;
   }
 
   .rich-text p {
     @apply lg:text-base text-sm;
+  }
+
+  .rich-text ol > li {
+    @apply !list-decimal;
   }
 
   h2 {
