@@ -3,7 +3,7 @@
 import db from "@/db";
 import { user } from "@/db/schemas/user";
 import { User } from "@/Types/db-types";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export const getUserById = async (id: User["id"]) => {
   try {
@@ -21,7 +21,7 @@ export const getUserById = async (id: User["id"]) => {
 export const getUserByEmail = async (email: string) => {
   try {
     const existingUser = await db.query.user.findFirst({
-      where: eq(user.email, email),
+      where: sql`BINARY ${user.email} = ${email}`,
     });
     return existingUser;
   } catch (err) {

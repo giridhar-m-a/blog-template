@@ -3,6 +3,7 @@ import db from "@/db";
 import { returnError } from "@/app/__actions/utils/return-error";
 import { eq } from "drizzle-orm";
 import { user } from "@/db/schemas/user";
+import { Role } from "@/Types/db-types";
 
 export const getAuthUser = async (): Promise<ExtendedUser | null> => {
   /**
@@ -21,7 +22,7 @@ export const getAuthUser = async (): Promise<ExtendedUser | null> => {
 };
 
 export const isAuthorised = async (
-  role: string[]
+  role: Role[]
 ): Promise<{ ok: boolean; message: string; user?: ExtendedUser }> => {
   /**
    * This function checks weather the user has permission to perform the action

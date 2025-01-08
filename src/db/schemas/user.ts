@@ -22,7 +22,7 @@ export const user = pgTable("users", {
   id: uuid("id").defaultRandom().notNull().primaryKey().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  password: varchar("password", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }),
   isVerified: boolean("is_verified").default(false).notNull(),
   verifiedAt: timestamp("verified_at"),
   role: roles("role").default("user").notNull(),

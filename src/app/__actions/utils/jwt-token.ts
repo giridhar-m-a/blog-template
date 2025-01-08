@@ -1,4 +1,5 @@
 import { envVariables } from "@/app/__constants/env-variables";
+import { InviteUserSchemaType } from "@/app/__schema/auth/InviteUserSchema";
 import { user as User } from "@/db/schemas/user";
 import { SignJWT, jwtVerify } from "jose";
 
@@ -22,6 +23,17 @@ export const generateToken = async (
     .setProtectedHeader({ alg: "HS256" })
     .setAudience(envVariables.appUrl || "")
     .setExpirationTime("10m")
+    .sign(key);
+};
+export const generateInviteToken = async (user: InviteUserSchemaType) => {
+  return await new SignJWT({
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setAudience(envVariables.appUrl || "")
+    .setExpirationTime("1440m")
     .sign(key);
 };
 
