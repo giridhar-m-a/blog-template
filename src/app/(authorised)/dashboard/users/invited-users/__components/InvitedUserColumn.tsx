@@ -1,7 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Ellipsis } from "lucide-react";
+import InviteAction from "./InviteActions";
 
 export const InvitedUserColumn: ColumnDef<{
+  id: number;
   name: string | null;
   email: string;
   role: "admin" | "seo" | "manager" | "user" | "Super_Admin" | null;
@@ -28,6 +30,6 @@ export const InvitedUserColumn: ColumnDef<{
   {
     header: "Action",
     accessorKey: "action",
-    cell: ({ row }) => <Ellipsis />,
+    cell: ({ row }) => <InviteAction id={row.original.id} />,
   },
 ];

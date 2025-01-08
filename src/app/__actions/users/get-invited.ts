@@ -16,6 +16,7 @@ export const getInvitedUsers = async () => {
     return await db.query.token.findMany({
       where: eq(token.purpose, "newUser"),
       columns: {
+        id: true,
         email: true,
         role: true,
         name: true,

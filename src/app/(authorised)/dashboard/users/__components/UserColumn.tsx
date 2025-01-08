@@ -3,6 +3,7 @@ import { ShortUser } from "@/Types/db-types";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Ellipsis } from "lucide-react";
+import UserAction from "./UserAction";
 
 export const UserColumn: ColumnDef<ShortUser>[] = [
   {
@@ -43,6 +44,6 @@ export const UserColumn: ColumnDef<ShortUser>[] = [
   {
     header: "Action",
     accessorKey: "action",
-    cell: ({ getValue }) => <Ellipsis />,
+    cell: ({ row }) => <UserAction user={row.original} />,
   },
 ];

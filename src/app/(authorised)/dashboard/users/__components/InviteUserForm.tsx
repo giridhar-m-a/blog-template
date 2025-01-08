@@ -25,7 +25,7 @@ import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 
 type Props = {
@@ -61,7 +61,7 @@ const InviteUserForm: React.FC<Props> = ({ setOpen, open }) => {
             title: data.message,
           });
           queryClient.invalidateQueries({
-            queryKey: ["getAllUsers"],
+            queryKey: ["getInvitedUsers"],
           });
           reset();
           setInterval(() => setOpen(!open), 3000);
